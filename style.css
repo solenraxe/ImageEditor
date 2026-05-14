@@ -18,6 +18,19 @@ body {
     font-weight: bold;
 }
 
+#header {
+    width: 50%;
+}
+
+#main {
+    margin: 0 auto;
+    background-color: var(--secondary-color);
+    width: 80%;
+    height: 50%;
+    display: flex;
+    justify-content: center;
+}
+
 #drawing-canvas {
     border: 2px solid #000;
 }
