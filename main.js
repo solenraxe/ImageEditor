@@ -10,7 +10,10 @@ mainWindow.appendChild(image);
 
 let imgINP = document.getElementById("img-input");
 imgINP.addEventListener("change", function() {
-    image.src = imgINP.value
+    const files = imgINP.files;
+    if (files.length === 0) {return;}
+    const newIMG = files[0];
+    image.src = URL.createObjectURL(newIMG)
 })
 
 let colorCodes = {

@@ -1,3 +1,23 @@
+:root {
+    --primary-color: #665f4d;
+    --secondary-color: #413d35;
+    --accent-color: #847d6f;
+    --text-color: #e0f5ff;
+}
+
+body {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+}
+
+.pres {
+    margin: 2% auto;
+    padding: 1%;
+    background-color: var(--secondary-color);
+    text-align: center;
+    font-weight: bold;
+}
+
 #drawing-canvas {
     border: 2px solid #000;
 }
