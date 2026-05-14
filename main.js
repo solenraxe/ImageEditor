@@ -58,3 +58,9 @@ function addPadding(img, pX, pY) {
 }
 
 addPadding(image, 20, 20)
+
+image.onload = function() {
+    console.log("Image loaded successfully!");
+    mainWindow.appendChild(image);
+    addPadding(image, 20, 20);
+};
