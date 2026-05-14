@@ -3,10 +3,21 @@ let mainWindow = document.getElementById("main");
 let canvas = document.getElementById("drawing-canvas");
 const ctx = canvas.getContext("2d");
 
-let image = new Image();
+let image = document.getElementById("source-img");
 image.src = "FlappyBird.png";
 image.crossOrigin = "anonymous";
-mainWindow.appendChild(image)
+mainWindow.appendChild(image);
+
+let imgINP = document.getElementById("img-input");
+imgINP.addEventListener("change", function() {
+    image.src = imgINP.value
+})
+
+let colorCodes = {
+    Red: [1, 0, 0],
+    Green: [0, 1, 0],
+    Blue: [0, 0, 1]
+};
 
 function changeImageColor(img, colorCodes) {
     ctx.drawImage(img, 0, 0);
@@ -56,11 +67,3 @@ function addPadding(img, pX, pY) {
     }
     ctx.putImageData(newImgData, 0, 0);
 }
-
-addPadding(image, 20, 20)
-
-image.onload = function() {
-    console.log("Image loaded successfully!");
-    mainWindow.appendChild(image);
-    addPadding(image, 20, 20);
-};
