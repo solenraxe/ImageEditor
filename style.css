@@ -16,21 +16,54 @@ body {
     background-color: var(--secondary-color);
     text-align: center;
     font-weight: bold;
+    border-radius: 15px;
+    border: 4px solid var(--accent-color);
 }
 
 #header {
     width: 50%;
 }
 
+#footer {
+    height: 30%;
+}
+
 #main {
+    position: relative;
     margin: 0 auto;
     background-color: var(--secondary-color);
     width: 80%;
-    height: 50%;
     display: flex;
     justify-content: center;
 }
 
+#input-zone {
+    border: 2px solid var(--accent-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 #drawing-canvas {
-    border: 2px solid #000;
+    height: 250px;
+    width: 250px;
+}
+
+#source-img {
+    position: relative;
+    height: 200px;
+    width: 200px;
+}
+
+#navbar {
+    width: 70%;
+}
+
+#navbar a {
+    color: var(--text-color);
+}
+
+#drawing-canvas {
+border: 2px solid var(--accent-color);
 }

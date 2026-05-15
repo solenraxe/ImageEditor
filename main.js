@@ -1,30 +1,51 @@
-let mainWindow = document.getElementById("main");
-
-let canvas = document.getElementById("drawing-canvas");
-const ctx = canvas.getContext("2d");
-
-let image = document.getElementById("source-img");
-image.src = "FlappyBird.png";
-image.crossOrigin = "anonymous";
-mainWindow.appendChild(image);
-
-let imgINP = document.getElementById("img-input");
-imgINP.addEventListener("change", function() {
-    const files = imgINP.files;
-    if (files.length === 0) {return;}
-    const newIMG = files[0];
-    image.src = URL.createObjectURL(newIMG)
-})
-
 let colorCodes = {
     Red: [1, 0, 0],
     Green: [0, 1, 0],
     Blue: [0, 0, 1]
 };
 
+let mainWindow = document.getElementById("main");
+
+let canvas = document.getElementById("drawing-canvas");
+const ctx = canvas.getContext("2d", {willReadFrequently: true});
+
+let image = document.getElementById("source-img");
+image.src = "FlappyBird.png";
+image.crossOrigin = "anonymous";
+
+let imgINP = document.getElementById("img-input");
+imgINP.addEventListener("change", function() {
+    const files = imgINP.files;
+    if (files.length === 0) {return;}
+
+    const newIMG = files[0];
+
+    image.src = URL.createObjectURL(newIMG);
+
+    image.onload = function() {
+        const targetHeight = 200;
+        const dimRatio = targetHeight / image.naturalHeight;
+    
+        const targetWidth = Math.floor(image.naturalWidth * dimRatio);
+
+        image.style.width = targetWidth + "px";
+        image.style.height = targetHeight + "px";
+
+        image.width = targetWidth;
+        image.height = targetHeight;
+
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+
+        canvas.style.width = Math.floor(250 * (image.naturalWidth/image.naturalHeight)) + "px";
+
+        addPadding(image, 20, 20);
+    };
+})
+
 function changeImageColor(img, colorCodes) {
     ctx.drawImage(img, 0, 0);
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, img.naturalWidth, img.naturalHeight);
     const data = imageData.data;
 
     for (let i=0; i<data.length; i+=4) {
@@ -38,8 +59,8 @@ function changeImageColor(img, colorCodes) {
 }
 
 function addPadding(img, pX, pY) {
-    const prevW = img.width;
-    const prevH = img.height;
+    const prevW = img.naturalWidth;
+    const prevH = img.naturalHeight;
     
     ctx.drawImage(img, 0, 0);
     const oldData = ctx.getImageData(0, 0, prevW, prevH).data;
