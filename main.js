@@ -1,7 +1,8 @@
 let colorCodes = {
     Red: [1, 0, 0],
     Green: [0, 1, 0],
-    Blue: [0, 0, 1]
+    Blue: [0, 0, 1],
+    Gray: [1, 1, 1]
 };
 
 let mainWindow = document.getElementById("main");
@@ -39,11 +40,11 @@ imgINP.addEventListener("change", function() {
 
         canvas.style.width = Math.floor(250 * (image.naturalWidth/image.naturalHeight)) + "px";
 
-        addPadding(image, 20, 20);
+        changeImageColor(image)
     };
 })
 
-function changeImageColor(img, colorCodes) {
+function changeImageColor(img) {
     ctx.drawImage(img, 0, 0);
     const imageData = ctx.getImageData(0, 0, img.naturalWidth, img.naturalHeight);
     const data = imageData.data;
@@ -80,14 +81,23 @@ function addPadding(img, pX, pY) {
                 const oldY = y - pY;
                 const oldIndex = (oldY * prevW + oldX) * 4;
 
-                newData[newIndex]     = oldData[oldIndex];     // R
-                newData[newIndex + 1] = oldData[oldIndex + 1]; // G
-                newData[newIndex + 2] = oldData[oldIndex + 2]; // B
-                newData[newIndex + 3] = oldData[oldIndex + 3]; // A
+                newData[newIndex] = oldData[oldIndex];
+                newData[newIndex + 1] = oldData[oldIndex + 1];
+                newData[newIndex + 2] = oldData[oldIndex + 2];
+                newData[newIndex + 3] = oldData[oldIndex + 3];
             } else {
                 newData[newIndex + 3] = 0; 
             }
         }
     }
     ctx.putImageData(newImgData, 0, 0);
+}
+
+function download() {
+  const dataURL = canvas.toDataURL("image/png");
+
+  const a = document.createElement("a");
+  a.href = dataURL;
+  a.download = "image.png";
+  a.click();
 }
