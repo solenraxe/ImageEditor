@@ -49,6 +49,8 @@ heightINP.addEventListener("change", function() {
 })
 
 function addPadding(img) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     let pX = parseInt(widthINP.value);
     let pY = parseInt(heightINP.value);
 

@@ -6,28 +6,18 @@
     </head>
     <body>
         <div id="header" class="pres">
-            <h1>Change Color</h1>
+            <h1>Merge images</h1>
         </div>
         <div id="navbar" class="pres">
             <a href="index.html">Home Page</a>
             <a href="padding.html">Add Padding</a>
-            <a href="merge.html">Merge Images</a>
+            <a href="color.html">Change Color</a>
         </div>
         <div id="main">
-            <div id="choice-zone">
-                <div class="choice-input">
-                    <label for="input-1">Color:</label>
-                    <input type="color" id="input-1" class="color-input">
-                </div>
-                <div class="choice-input">
-                    <label for="input-2">Specific Color:</label>
-                    <input type="checkbox" id="input-2">
-                </div>
-            </div>
             <div id="render-zone">
                 <div id="input-zone">
                     <label id="input-style" for="img-input">Upload Image...</label>
-                    <input id="img-input" type="file" accept=".png,.jpg">
+                    <input id="img-input" type="file" accept=".png,.jpg" multiple>
                     <img id="source-img" src="FlappyBird.png">
                 </div>
                 <canvas id="drawing-canvas" width="250" height="250"></canvas>
@@ -40,5 +30,5 @@
             Image Editor by Solenrae
         </div>
     </body>
-    <script src="changeColor.js"></script>
+    <script src="mergeImages.js"></script>
 </html>
