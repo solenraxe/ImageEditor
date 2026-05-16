@@ -7,6 +7,9 @@ let image = document.getElementById("source-img");
 image.src = "FlappyBird.png";
 image.crossOrigin = "anonymous";
 
+let widthINP = document.getElementById("input-1");
+let heightINP = document.getElementById("input-2");
+
 let imgINP = document.getElementById("img-input");
 imgINP.addEventListener("change", function() {
     const files = imgINP.files;
@@ -33,11 +36,22 @@ imgINP.addEventListener("change", function() {
 
         canvas.style.width = Math.floor(250 * (image.naturalWidth/image.naturalHeight)) + "px";
 
-        changeImageColor(image)
+        addPadding(image);
     };
 })
 
-function addPadding(img, pX, pY) {
+widthINP.addEventListener("change", function() {
+    addPadding(image);
+})
+
+heightINP.addEventListener("change", function() {
+    addPadding(image);
+})
+
+function addPadding(img) {
+    let pX = parseInt(widthINP.value);
+    let pY = parseInt(heightINP.value);
+
     const prevW = img.naturalWidth;
     const prevH = img.naturalHeight;
     
