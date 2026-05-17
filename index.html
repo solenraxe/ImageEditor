@@ -8,13 +8,81 @@
         <div id="header" class="pres">
             <h1>Image Editor</h1>
         </div>
-        <div id="navbar" class="pres">
-            <a href="padding.html">Add Padding</a>
-            <a href="color.html">Change Color</a>
-            <a href="merge.html">Merge Images</a>
+        <div id="main">
+            <div id="mode-list">
+                <div class="mode">
+                    <button class="button" id="padding-mode" onclick="changeMode('padding')">Add Padding</button>
+                    
+                    <div class="input-group" id="p-width">
+                        <label for="p-width-inp">Width:</label>
+                        <input type="number" id="p-width-inp" min="0" value="15" class="nbr-inp">
+                    </div>
+
+                    <div class="input-group" id="p-height">
+                        <label for="p-height-inp">Height:</label>
+                        <input type="number" id="p-height-inp" min="0" value="30" class="nbr-inp">
+                    </div>
+                </div>
+
+                <div class="mode">
+                    <button class="button" id="filter-mode" onclick="changeMode('filter')">Color Filter</button>
+
+                    <div class="input-group" id="f-color">
+                        <label for="f-color-inp">Filter's Color:</label>
+                        <input type="color" id="f-color-inp" value="#000000" class="clr-inp">
+                    </div>
+                </div>
+
+                <div class="mode">
+                    <button class="button" id="replace-mode" onclick="changeMode('replace')">Replace Color</button>
+
+                    <div class="input-group" id="r-color-1">
+                        <label for="r-color-1-inp">Original Color:</label>
+                        <input type="color" id="r-color-1-inp" value="#000000" class="clr-inp">
+                    </div>
+
+                    <div class="input-group" id="r-color-2">
+                        <label for="r-color-2-inp">Replacement Color:</label>
+                        <input type="color" id="r-color-2-inp" value="#000000" class="clr-inp">
+                    </div>
+
+                    <div class="input-group" id="r-threshold">
+                        <label for="r-threshold-inp">Threshold:</label>
+                        <input type="number" id="r-threshold-inp" min="0" value="50" class="nbr-inp">
+                    </div>
+                </div>
+
+                <div class="mode">
+                    <button class="button" id="merge-mode" onclick="changeMode('merge')">Merge Images</button>
+
+                    <div class="input-group" id="m-nbr">
+                        <label for="m-nbr-inp">Number of Images:</label>
+                        <input type="number" id="m-nbr-inp" min="2" value="2" class="nbr-inp">
+                    </div>
+                </div>
+            </div>
+
+            <div id="img-zone" class="pres">
+                <div id="render-zone">
+                    <div id="input-zone">
+                        <label class="button" for="img-input">Upload Image...</label>
+                        <input type="file" id="img-input" accept=".png, .jpg, .jped" multiple>
+                        <img id="source-img" src="FlappyBird.png" alt="Your image will appear here">
+                    </div>
+
+                    <canvas id="drawing-canvas" width="250" height="250"></canvas>
+                </div>
+
+                <div id="download-zone">
+                    <button class="button" id="download" onclick="download()">Download...</button>
+                </div>
+            </div>
         </div>
+
         <div id="footer" class="pres">
             Image Editor by Solenrae
         </div>
+
+        <script src="main.js"></script>
     </body>
 </html>
