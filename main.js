@@ -128,10 +128,10 @@ function changeImageColor(img) {
 function replaceImageColor(img) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    let rgb = hexToRgb(rColor1INP.value)
+    let rgb = hexToRgb(rColor2INP.value)
     const colorCodes = [rgb.r/255, rgb.g/255, rgb.b/255]
 
-    let specRGB = hexToRgb(rColor2INP.value);
+    let specRGB = hexToRgb(rColor1INP.value);
     let specColor = [specRGB.r, specRGB.g, specRGB.b];
 
     ctx.drawImage(img, 0, 0);
@@ -152,6 +152,12 @@ function replaceImageColor(img) {
     ctx.putImageData(imageData, 0, 0);
 }
 
+function mergeImages(img) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.drawImage(img, Math.round(canvas.width/2 - img.naturalWidth/2), Math.round(canvas.height/2 - img.naturalHeight/2)); 
+}
+
 function processImage(img) {
     if (currentMode === "padding") {
         addPadding(img);
@@ -165,31 +171,53 @@ function processImage(img) {
 }
 
 let imgINP = document.getElementById("img-input");
-imgINP.addEventListener("change", function() {
+imgINP.addEventListener("change", async function() {
     const files = imgINP.files;
     if (files.length === 0) {return;}
 
-    const newIMG = files[0];
+    let imgNbr = 1;
+    if (currentMode === "merge") {
+        imgNbr = parseInt(mNbrINP.value);
+    }
 
-    image.src = URL.createObjectURL(newIMG);
+    const loadedImages = [];
+    let maxH = 0;
+    let maxW = 0;
 
-    image.onload = function() {
+    for (let i=0; i<Math.min(imgNbr, files.length); i++) {
+        let file = files[i];
+
+        const tempImg = new Image();
+        tempImg.crossOrigin = "anonymous";
+        tempImg.src = URL.createObjectURL(file);
+
+        await new Promise((resolve) => {
+            tempImg.onload = function() {
+                if (tempImg.naturalHeight > maxH) { maxH = tempImg.naturalHeight; }
+                if (tempImg.naturalWidth > maxW) { maxW = tempImg.naturalWidth; }
+                
+                loadedImages.push(tempImg);
+                resolve();
+            };
+        });
+    }
+
+    canvas.width = maxW;
+    canvas.height = maxH;
+
+    canvas.style.width = Math.floor(250 * (maxW / maxH)) + "px";
+
+    for (let imageN of loadedImages) {
+        processImage(imageN);
+    }
+
+    if (loadedImages.length > 0) {
+        const lastImg = loadedImages[0];
         const targetHeight = 200;
-        const dimRatio = targetHeight / image.naturalHeight;
-    
-        const targetWidth = Math.floor(image.naturalWidth * dimRatio);
-
-        image.style.width = targetWidth + "px";
+        const dimRatio = targetHeight / lastImg.naturalHeight;
+        
+        image.src = lastImg.src;
         image.style.height = targetHeight + "px";
-
-        image.width = targetWidth;
-        image.height = targetHeight;
-
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
-
-        canvas.style.width = Math.floor(250 * (image.naturalWidth/image.naturalHeight)) + "px";
-
-        processImage(image);
-    };
+        image.style.width = Math.floor(lastImg.naturalWidth * dimRatio) + "px";
+    }
 })
