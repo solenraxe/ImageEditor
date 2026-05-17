@@ -19,30 +19,48 @@ let modesElements = {
     "filter": [document.getElementById("f-color")],
     "replace": [document.getElementById("r-color-1"), document.getElementById("r-color-2"), document.getElementById("r-threshold")],
     "merge": [document.getElementById("m-nbr")],
+    "opacity": [document.getElementById("o-ratio")]
 }
 
-let currentMode = "padding";
-for (let elem in modesElements[currentMode]) {
-    modesElements[currentMode][elem].style.display = "block";
-}
-function changeMode(mode) {
-    for (let elem in modesElements[currentMode]) {
-        modesElements[currentMode][elem].style.display = "none";
-    }
-
-    currentMode = mode;
-    for (let elem in modesElements[currentMode]) {
-        modesElements[currentMode][elem].style.display = "block";
+for (let mode in modesElements) {
+    for (let elem of modesElements[mode]) {
+        let inputElem = document.getElementById(elem.id + "-inp");
+        inputElem.addEventListener("change", function() {
+            processImage(image);
+        })
     }
 }
 
 let pWidthINP = document.getElementById("p-width-inp");
 let pHeightINP = document.getElementById("p-height-inp");
+
 let fColorINP = document.getElementById("f-color-inp");
+
 let rColor1INP = document.getElementById("r-color-1-inp");
 let rColor2INP = document.getElementById("r-color-2-inp");
 let rThresholdINP = document.getElementById("r-threshold-inp");
+
 let mNbrINP = document.getElementById("m-nbr-inp");
+
+let oRatioINP = document.getElementById("o-ratio-inp");
+
+let currentMode = "padding";
+for (let elem of modesElements[currentMode]) {
+    elem.style.display = "block";
+    let inputElem = document.getElementById(elem.id + "-inp");
+}
+function changeMode(mode) {
+    for (let elem of modesElements[currentMode]) {
+        elem.style.display = "none";
+        let inputElem = document.getElementById(elem.id + "-inp");
+    }
+
+    currentMode = mode;
+    for (let elem of modesElements[currentMode]) {
+        elem.style.display = "block";
+        let inputElem = document.getElementById(elem.id + "-inp");
+    }
+}
 
 function hexToRgb(hex) {
   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -104,6 +122,9 @@ function addPadding(img) {
 function changeImageColor(img) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+
     let rgb = hexToRgb(fColorINP.value)
     const colorCodes = [rgb.r/255, rgb.g/255, rgb.b/255]
 
@@ -127,6 +148,9 @@ function changeImageColor(img) {
 
 function replaceImageColor(img) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
 
     let rgb = hexToRgb(rColor2INP.value)
     const colorCodes = [rgb.r/255, rgb.g/255, rgb.b/255]
@@ -153,12 +177,41 @@ function replaceImageColor(img) {
 }
 
 function mergeImages(img) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     ctx.drawImage(img, Math.round(canvas.width/2 - img.naturalWidth/2), Math.round(canvas.height/2 - img.naturalHeight/2)); 
 }
 
+function changeImageOpacity(img) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    let ratio = parseFloat(oRatioINP.value);
+
+    const prevW = img.naturalWidth;
+    const prevH = img.naturalHeight;
+
+    canvas.width = prevW;
+    canvas.height = prevH;
+
+    ctx.drawImage(img, 0, 0);
+    const imageData = ctx.getImageData(0, 0, prevW, prevH);
+    const data = imageData.data;
+
+    for (let i=0; i<data.length; i+=4) {
+        let originalAlpha = data[i+3];
+
+        if (ratio >= 0) {
+            data[i+3] = originalAlpha * (1 - ratio);
+        } else {
+            let absRatio = Math.abs(ratio);
+            data[i+3] = originalAlpha + (255 - originalAlpha) * absRatio;
+        }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+}
+
 function processImage(img) {
+    if (img.width === 0 || img.height === 0) { return; }
+
     if (currentMode === "padding") {
         addPadding(img);
     } else if (currentMode === "filter") {
@@ -167,9 +220,12 @@ function processImage(img) {
         replaceImageColor(img);
     } else if (currentMode === "merge") {
         mergeImages(img);
+    } else if (currentMode === "opacity") {
+        changeImageOpacity(img);
     }
 }
 
+let loadedImages = [];
 let imgINP = document.getElementById("img-input");
 imgINP.addEventListener("change", async function() {
     const files = imgINP.files;
@@ -180,7 +236,6 @@ imgINP.addEventListener("change", async function() {
         imgNbr = parseInt(mNbrINP.value);
     }
 
-    const loadedImages = [];
     let maxH = 0;
     let maxW = 0;
 
@@ -220,4 +275,33 @@ imgINP.addEventListener("change", async function() {
         image.style.height = targetHeight + "px";
         image.style.width = Math.floor(lastImg.naturalWidth * dimRatio) + "px";
     }
+
+    if (loadedImages.length >= imgNbr) {
+        loadedImages = [];
+    }
 })
+
+function reEdit() {
+    image.src = canvas.toDataURL("image/png");
+    image.onload = function() {
+        loadedImages.push(image);
+
+        const targetHeight = 200;
+        const dimRatio = targetHeight / image.naturalHeight;
+    
+        const targetWidth = Math.floor(image.naturalWidth * dimRatio);
+
+        image.style.width = targetWidth + "px";
+        image.style.height = targetHeight + "px";
+
+        image.width = targetWidth;
+        image.height = targetHeight;
+
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+
+        canvas.style.width = Math.floor(250 * (image.naturalWidth/image.naturalHeight)) + "px";
+
+        processImage(image);
+    }
+}

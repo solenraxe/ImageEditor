@@ -60,6 +60,15 @@
                         <input type="number" id="m-nbr-inp" min="2" value="2" class="nbr-inp">
                     </div>
                 </div>
+
+                <div class="mode">
+                    <button class="button" id="opacity-mode" onclick="changeMode('opacity')">Change Opacity</button>
+
+                    <div class="input-group" id="o-ratio">
+                        <label for="o-ratio-inp">Opacity Ratio:</label>
+                        <input type="number" id="o-ratio-inp" min="-1" max="1" step="0.1" value="0.5" class="nbr-inp">
+                    </div>
+                </div>
             </div>
 
             <div id="img-zone" class="pres">
@@ -73,7 +82,8 @@
                     <canvas id="drawing-canvas" width="250" height="250"></canvas>
                 </div>
 
-                <div id="download-zone">
+                <div id="follow-up-zone">
+                    <button class="button" id="re-edit" onclick="reEdit()">Edit created image</button>
                     <button class="button" id="download" onclick="download()">Download...</button>
                 </div>
             </div>
