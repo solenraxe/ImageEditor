@@ -3,7 +3,7 @@ const ctx = canvas.getContext("2d", {willReadFrequently: true});
 
 let image = document.getElementById("source-img");
 image.crossOrigin = "anonymous";
-image.src = "FlappyBird.png";
+image.src = "Beest.png";
 
 function download() {
     const dataURL = canvas.toDataURL("image/png");
@@ -19,7 +19,8 @@ let modesElements = {
     "filter": [document.getElementById("f-color")],
     "replace": [document.getElementById("r-color-1"), document.getElementById("r-color-2"), document.getElementById("r-threshold")],
     "merge": [document.getElementById("m-nbr")],
-    "opacity": [document.getElementById("o-ratio")]
+    "opacity": [document.getElementById("o-ratio")],
+    "flip": [document.getElementById("f-direction")],
 }
 
 for (let mode in modesElements) {
@@ -43,7 +44,7 @@ let rThresholdINP = document.getElementById("r-threshold-inp");
 let mNbrINP = document.getElementById("m-nbr-inp");
 
 let oRatioINP = document.getElementById("o-ratio-inp");
-
+let fDirectionINP = document.getElementById("f-direction-inp");
 let currentMode = "padding";
 for (let elem of modesElements[currentMode]) {
     elem.style.display = "block";
@@ -209,6 +210,45 @@ function changeImageOpacity(img) {
     ctx.putImageData(imageData, 0, 0);
 }
 
+function flipImage(img) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const prevW = img.naturalWidth;
+    const prevH = img.naturalHeight;
+
+    canvas.width = prevW;
+    canvas.height = prevH;
+
+    ctx.drawImage(img, 0, 0);
+    const imageData = ctx.getImageData(0, 0, prevW, prevH);
+    const data = imageData.data;
+
+    const flippedData = ctx.createImageData(canvas.width, canvas.height);
+    const flippedDataArray = flippedData.data;
+
+    for (let y = 0; y < canvas.height; y++) {
+        for (let x = 0; x < canvas.width; x++) {
+            const index = (y * canvas.width + x) * 4;
+            let flippedX = x;
+            let flippedY = y;
+
+            if (fDirectionINP.value === "horizontal") {
+                flippedX = canvas.width - 1 - x;
+            } else if (fDirectionINP.value === "vertical") {
+                flippedY = canvas.height - 1 - y;
+            }
+
+            const flippedIndex = (flippedY * canvas.width + flippedX) * 4;
+            flippedDataArray[index] = data[flippedIndex];
+            flippedDataArray[index + 1] = data[flippedIndex + 1];
+            flippedDataArray[index + 2] = data[flippedIndex + 2];
+            flippedDataArray[index + 3] = data[flippedIndex + 3];
+        }
+    }
+
+    ctx.putImageData(flippedData, 0, 0);
+}
+
 function processImage(img) {
     if (img.width === 0 || img.height === 0) { return; }
 
@@ -222,6 +262,8 @@ function processImage(img) {
         mergeImages(img);
     } else if (currentMode === "opacity") {
         changeImageOpacity(img);
+    } else if (currentMode === "flip") {
+        flipImage(img);
     }
 }
 
