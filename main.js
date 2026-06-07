@@ -7,8 +7,10 @@ image.src = "Beest.png";
 
 let format = "png";
 
+let layers = [];
+
 function download() {
-    const dataURL = canvas.toDataURL("image/png");
+    const dataURL = canvas.toDataURL("image/" + format);
 
     const a = document.createElement("a");
     a.href = dataURL;
