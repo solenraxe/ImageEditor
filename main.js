@@ -340,6 +340,9 @@ function blurImage(img) {
 
                     if (neighborX >= 0 && neighborX < canvas.width && neighborY >= 0 && neighborY < canvas.height) {
                         const neighborIndex = (neighborY * canvas.width + neighborX) * 4;
+                        if (data[neighborIndex + 3] === 0) {
+                            continue;
+                        }
                         rSum += data[neighborIndex];
                         gSum += data[neighborIndex + 1];
                         bSum += data[neighborIndex + 2];
@@ -379,12 +382,7 @@ function processImage(img) {
     }
 }
 
-let loadedImages = [];
-let imgINP = document.getElementById("img-input");
-imgINP.addEventListener("change", async function() {
-    const files = imgINP.files;
-    if (files.length === 0) {return;}
-
+async function uploadImage(files) {
     let imgNbr = 1;
     if (currentMode === "merge") {
         imgNbr = parseInt(mNbrINP.value);
@@ -433,7 +431,71 @@ imgINP.addEventListener("change", async function() {
     if (loadedImages.length >= imgNbr) {
         loadedImages = [];
     }
+}
+
+let loadedImages = [];
+let imgINP = document.getElementById("img-input");
+imgINP.addEventListener("change", async function() {
+    const files = imgINP.files;
+    if (files.length === 0) {return;}
+
+    await uploadImage(files);
 })
+
+const dropZone = document.getElementById("input-zone");
+dropZone.addEventListener("drop", async function(event) {
+    event.preventDefault();
+    const files = event.dataTransfer.files;
+    if (files.length === 0) {return;}
+
+    await uploadImage(files);
+})
+
+window.addEventListener("drop", (e) => {
+  if ([...e.dataTransfer.items].some((item) => item.kind === "file")) {
+    e.preventDefault();
+  }
+});
+
+dropZone.addEventListener("dragover", (e) => {
+  const fileItems = [...e.dataTransfer.items].filter(
+    (item) => item.kind === "file",
+  );
+  if (fileItems.length > 0) {
+    e.preventDefault();
+    if (fileItems.some((item) => item.type.startsWith("image/"))) {
+      e.dataTransfer.dropEffect = "copy";
+    } else {
+      e.dataTransfer.dropEffect = "none";
+    }
+  }
+});
+
+window.addEventListener("dragover", (e) => {
+  const fileItems = [...e.dataTransfer.items].filter(
+    (item) => item.kind === "file",
+  );
+  if (fileItems.length > 0) {
+    e.preventDefault();
+    if (!dropZone.contains(e.target)) {
+      e.dataTransfer.dropEffect = "none";
+    }
+  }
+});
+
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        processImage(image);
+    } else if (event.key === "Tab") {
+        event.preventDefault();
+        reEdit();
+    } else if (event.key === "Escape") {
+        download();
+    } else if (event.key === "Backspace") {
+        event.preventDefault();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+});
 
 function reEdit() {
     image.src = canvas.toDataURL("image/png");

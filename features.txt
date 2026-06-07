@@ -7,6 +7,8 @@ Current :
 - Flip Image
 - Round Corners
 - Blur
+- Drag & Drop Images
+- Keyboard Shortcuts
 
 To be added :
 - Background Editor
@@ -16,8 +18,6 @@ To be added :
     - Add presets (Instagram Story, YouTube Thumbnail...)
     - Change ratio without cropping
 
-- Drag & Drop Images
-- Keyboard Shortcuts
 - Download Settings
 
 - Drag Images where you want them
