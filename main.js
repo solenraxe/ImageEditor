@@ -21,6 +21,8 @@ let modesElements = {
     "merge": [document.getElementById("m-nbr")],
     "opacity": [document.getElementById("o-ratio")],
     "flip": [document.getElementById("f-direction")],
+    "round": [document.getElementById("r-radius")],
+    "blur": [document.getElementById("b-intensity")],
 }
 
 for (let mode in modesElements) {
@@ -44,7 +46,13 @@ let rThresholdINP = document.getElementById("r-threshold-inp");
 let mNbrINP = document.getElementById("m-nbr-inp");
 
 let oRatioINP = document.getElementById("o-ratio-inp");
+
 let fDirectionINP = document.getElementById("f-direction-inp");
+
+let rRadiusINP = document.getElementById("r-radius-inp");
+
+let bIntensityINP = document.getElementById("b-intensity-inp");
+
 let currentMode = "padding";
 for (let elem of modesElements[currentMode]) {
     elem.style.display = "block";
@@ -249,6 +257,106 @@ function flipImage(img) {
     ctx.putImageData(flippedData, 0, 0);
 }
 
+function roundImageCorners(img) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const prevW = img.naturalWidth;
+    const prevH = img.naturalHeight;
+
+    canvas.width = prevW;
+    canvas.height = prevH;
+
+    ctx.drawImage(img, 0, 0);
+    const imageData = ctx.getImageData(0, 0, prevW, prevH);
+    const data = imageData.data;
+
+    const newImgData = ctx.createImageData(canvas.width, canvas.height);
+    const newData = newImgData.data;
+
+    const radius = parseInt(rRadiusINP.value);
+    for (let y = 0; y < canvas.height; y++) {
+        for (let x = 0; x < canvas.width; x++) {
+            const index = (y * canvas.width + x) * 4;
+
+            const distToLeft = x;
+            const distToRight = canvas.width - 1 - x;
+            const distToTop = y;
+            const distToBottom = canvas.height - 1 - y;
+
+            let xDistToCorner = Math.min(distToLeft, distToRight);
+            let yDistToCorner = Math.min(distToTop, distToBottom);
+
+            if (xDistToCorner < radius && yDistToCorner < radius) {
+                const dx = radius - xDistToCorner;
+                const dy = radius - yDistToCorner;
+                const distToCorner = Math.sqrt(dx * dx + dy * dy);
+                if (distToCorner >= radius) {
+                    newData[index + 3] = 0;
+                } else {
+                    newData[index + 3] = data[index + 3];
+                }
+            } else {
+                newData[index + 3] = data[index + 3];
+            }
+
+            newData[index] = data[index];
+            newData[index + 1] = data[index + 1];
+            newData[index + 2] = data[index + 2];
+        }
+    }
+    ctx.putImageData(newImgData, 0, 0);
+}
+
+function blurImage(img) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const prevW = img.naturalWidth;
+    const prevH = img.naturalHeight;
+
+    canvas.width = prevW;
+    canvas.height = prevH;
+
+    ctx.drawImage(img, 0, 0);
+    const imageData = ctx.getImageData(0, 0, prevW, prevH);
+    const data = imageData.data;
+
+    const blurredData = ctx.createImageData(canvas.width, canvas.height);
+    const blurredDataArray = blurredData.data;
+
+    const intensity = parseInt(bIntensityINP.value);
+    for (let y = 0; y < canvas.height; y++) {
+        for (let x = 0; x < canvas.width; x++) {
+            const index = (y * canvas.width + x) * 4;
+
+            let rSum = 0;
+            let gSum = 0;
+            let bSum = 0;
+            let count = 0;
+
+            for (let j = -intensity; j <= intensity; j++) {
+                for (let i = -intensity; i <= intensity; i++) {
+                    const neighborX = x + i;
+                    const neighborY = y + j;
+
+                    if (neighborX >= 0 && neighborX < canvas.width && neighborY >= 0 && neighborY < canvas.height) {
+                        const neighborIndex = (neighborY * canvas.width + neighborX) * 4;
+                        rSum += data[neighborIndex];
+                        gSum += data[neighborIndex + 1];
+                        bSum += data[neighborIndex + 2];
+                        count++;
+                    }
+                }
+            }
+
+            blurredDataArray[index] = rSum / count;
+            blurredDataArray[index + 1] = gSum / count;
+            blurredDataArray[index + 2] = bSum / count;
+            blurredDataArray[index + 3] = data[index + 3];
+        }
+    }
+    ctx.putImageData(blurredData, 0, 0);
+}
+
 function processImage(img) {
     if (img.width === 0 || img.height === 0) { return; }
 
@@ -264,6 +372,10 @@ function processImage(img) {
         changeImageOpacity(img);
     } else if (currentMode === "flip") {
         flipImage(img);
+    } else if (currentMode === "round") {
+        roundImageCorners(img);
+    } else if (currentMode === "blur") {
+        blurImage(img);
     }
 }
 

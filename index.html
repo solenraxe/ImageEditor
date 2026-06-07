@@ -82,6 +82,24 @@
                         </select>
                     </div>
                 </div>
+
+                <div class="mode">
+                    <button class="button" id="round-mode" onclick="changeMode('round')">Round Corners</button>
+
+                    <div class="input-group" id="r-radius">
+                        <label for="r-radius-inp">Radius:</label>
+                        <input type="number" id="r-radius-inp" min="0" value="15" class="nbr-inp">
+                    </div>
+                </div>
+
+                <div class="mode">
+                    <button class="button" id="blur-mode" onclick="changeMode('blur')">Blur Image</button>
+
+                    <div class="input-group" id="b-intensity">
+                        <label for="b-intensity-inp">Intensity:</label>
+                        <input type="number" id="b-intensity-inp" min="1" max="20" value="5" class="nbr-inp">
+                    </div>
+                </div>
             </div>
 
             <div id="img-zone" class="pres">

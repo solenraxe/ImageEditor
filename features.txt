@@ -1,0 +1,23 @@
+Current :
+- Padding
+- Color Filter
+- Replace Color
+- Merge Images
+- Change Opacity
+- Flip Image
+- Round Corners
+- Blur
+
+To be added :
+- Background Editor
+    - Fill with solid Color
+    - Make transparent
+- Ratio
+    - Add presets (Instagram Story, YouTube Thumbnail...)
+    - Change ratio without cropping
+
+- Drag & Drop Images
+- Keyboard Shortcuts
+- Download Settings
+
+- Drag Images where you want them
