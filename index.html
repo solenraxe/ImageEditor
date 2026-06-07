@@ -2,6 +2,7 @@
 <html>
     <head>
         <link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="icon" type="image/png" href="icon.png">
         <title>Image Editor</title>
     </head>
     <body>
@@ -69,6 +70,60 @@
                         <input type="number" id="o-ratio-inp" min="-1" max="1" step="0.1" value="0.5" class="nbr-inp">
                     </div>
                 </div>
+
+                <div class="mode">
+                    <button class="button" id="flip-mode" onclick="changeMode('flip')">Flip Image</button>
+
+                    <div class="input-group" id="f-direction">
+                        <label for="f-direction-inp">Flip Direction:</label>
+                        <select id="f-direction-inp" class="sel-inp">
+                            <option value="horizontal">Horizontal</option>
+                            <option value="vertical">Vertical</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mode">
+                    <button class="button" id="round-mode" onclick="changeMode('round')">Round Corners</button>
+
+                    <div class="input-group" id="r-radius">
+                        <label for="r-radius-inp">Radius:</label>
+                        <input type="number" id="r-radius-inp" min="0" value="15" class="nbr-inp">
+                    </div>
+                </div>
+
+                <div class="mode">
+                    <button class="button" id="blur-mode" onclick="changeMode('blur')">Blur Image</button>
+
+                    <div class="input-group" id="b-intensity">
+                        <label for="b-intensity-inp">Intensity:</label>
+                        <input type="number" id="b-intensity-inp" min="1" max="20" value="5" class="nbr-inp">
+                    </div>
+                </div>
+
+                <div class="mode">
+                    <button class="button" id="ratio-mode" onclick="changeMode('ratio')">Change Image Ratio</button>
+
+                    <div class="input-group" id="r-type">
+                        <label for="r-type-inp">Ratio Type:</label>
+                        <select id="r-type-inp" class="sel-inp">
+                            <option value="crop">Crop</option>
+                            <option value="distort">Distort</option>
+                            <option value="fill">Fill</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" id="r-presets">
+                        <label for="r-presets-inp">Presets:</label>
+                        <select id="r-presets-inp" class="sel-inp">
+                            <option value="1:1">1:1</option>
+                            <option value="4:3">4:3</option>
+                            <option value="16:9">16:9</option>
+                            <option value="3:4">3:4</option>
+                            <option value="9:16">9:16</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <div id="img-zone" class="pres">
@@ -76,7 +131,7 @@
                     <div id="input-zone">
                         <label class="button" for="img-input">Upload Image...</label>
                         <input type="file" id="img-input" accept=".png, .jpg, .jped" multiple>
-                        <img id="source-img" src="FlappyBird.png" alt="Your image will appear here">
+                        <img id="source-img" src="Beest.png" alt="Your image will appear here">
                     </div>
 
                     <canvas id="drawing-canvas" width="250" height="250"></canvas>
@@ -85,6 +140,14 @@
                 <div id="follow-up-zone">
                     <button class="button" id="re-edit" onclick="reEdit()">Edit created image</button>
                     <button class="button" id="download" onclick="download()">Download...</button>
+                    <div id="download-as-zone">
+                        <label for="download-as">Download as...</label>
+                        <select id="download-as" class="sel-inp">
+                            <option value="png">PNG</option>
+                            <option value="jpg">JPEG</option>
+                            <option value="ico">ICON</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
