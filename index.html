@@ -124,6 +124,28 @@
                         </select>
                     </div>
                 </div>
+
+                <div class="mode">
+                    <button class="button" id="background-mode" onclick="changeMode('background')">Edit Background</button>
+
+                    <div class="input-group" id="b-type">
+                        <label for="b-type-inp">Edit Type:</label>
+                        <select id="b-type-inp" class="sel-inp">
+                            <option value="remove">Remove</option>
+                            <option value="change">Change Color</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" id="b-threshold">
+                        <label for="b-threshold-inp">Threshold:</label>
+                        <input type="number" id="b-threshold-inp" min="0" value="10" class="nbr-inp">
+                    </div>
+
+                    <div class="input-group" id="b-color">
+                        <label for="b-color-inp">Replacement Color:</label>
+                        <input type="color" id="b-color-inp" value="#000000" class="clr-inp">
+                    </div>
+                </div>
             </div>
 
             <div id="img-zone" class="pres">
