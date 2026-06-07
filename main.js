@@ -5,14 +5,21 @@ let image = document.getElementById("source-img");
 image.crossOrigin = "anonymous";
 image.src = "Beest.png";
 
+let format = "png";
+
 function download() {
     const dataURL = canvas.toDataURL("image/png");
 
     const a = document.createElement("a");
     a.href = dataURL;
-    a.download = "image.png";
+    a.download = "image." + format;
     a.click();
 }
+
+let downloadAs = document.getElementById("download-as");
+downloadAs.addEventListener("change", function() {
+    format = downloadAs.value
+})
 
 let modesElements = {
     "padding": [document.getElementById("p-width"), document.getElementById("p-height")],
@@ -23,6 +30,7 @@ let modesElements = {
     "flip": [document.getElementById("f-direction")],
     "round": [document.getElementById("r-radius")],
     "blur": [document.getElementById("b-intensity")],
+    "ratio": [document.getElementById("r-type"), document.getElementById("r-presets")],
 }
 
 for (let mode in modesElements) {
@@ -52,6 +60,9 @@ let fDirectionINP = document.getElementById("f-direction-inp");
 let rRadiusINP = document.getElementById("r-radius-inp");
 
 let bIntensityINP = document.getElementById("b-intensity-inp");
+
+let rTypeINP = document.getElementById("r-type-inp");
+let rPresetsINP = document.getElementById("r-presets-inp");
 
 let currentMode = "padding";
 for (let elem of modesElements[currentMode]) {
@@ -360,6 +371,76 @@ function blurImage(img) {
     ctx.putImageData(blurredData, 0, 0);
 }
 
+function changeImageRatio(img) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const prevW = img.naturalWidth;
+    const prevH = img.naturalHeight;
+
+    canvas.width = prevW;
+    canvas.height = prevH;
+
+    ctx.drawImage(img, 0, 0)
+    const imageData = ctx.getImageData(0, 0, prevW, prevH)
+    const data = imageData.data
+
+    const ratioParts = rPresetsINP.value.split(":");
+    const targetRatioW = parseFloat(ratioParts[0]);
+    const targetRatioH = parseFloat(ratioParts[1]);
+    const targetRatio = targetRatioW / targetRatioH;
+
+    let ratioType = rTypeINP.value;
+
+    let cropW = prevW;
+    let cropH = prevW / targetRatio;
+
+    if (cropH > prevH) {
+        cropH = prevH;
+        cropW = prevH * targetRatio;
+    }
+
+    let cropX = (prevW - cropW) / 2;
+    let cropY = (prevH - cropH) / 2;
+
+    if (ratioType === "crop") {
+        canvas.width = cropW;
+        canvas.height = cropH;
+
+        ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
+    } else if (ratioType == "fill") {
+        const newW = prevW + cropX*2;
+        const newH = prevH + cropY*2;
+
+        canvas.width = newW;
+        canvas.height = newH;
+        const newImageData = ctx.createImageData(newW, newH)
+        const newData = newImageData.data
+
+        for (let y = 0; y < canvas.height; y++) {
+            for (let x = 0; x < canvas.width; x++) {
+                const index = (y * canvas.width + x) * 4;
+
+                if (x>=cropX && x<cropX+prevW && y>=cropY && y<cropY+prevH) {
+                    const oldY = y - cropY;
+                    const oldX = x - cropX;
+                    const oldIndex = (oldY * prevW + oldX) * 4;
+
+                    newData[index] = data[oldIndex];
+                    newData[index+1] = data[oldIndex+1];
+                    newData[index+2] = data[oldIndex+2];
+                    newData[index+3] = data[oldIndex+3];
+                } else {
+                    newData[index] = 0;
+                    newData[index+1] = 0;
+                    newData[index+2] = 0;
+                    newData[index+3] = 0;
+                }
+            }
+        }
+        ctx.putImageData(newImageData, 0, 0);
+    }
+}
+
 function processImage(img) {
     if (img.width === 0 || img.height === 0) { return; }
 
@@ -379,6 +460,8 @@ function processImage(img) {
         roundImageCorners(img);
     } else if (currentMode === "blur") {
         blurImage(img);
+    } else if (currentMode === "ratio") {
+        changeImageRatio(img);
     }
 }
 

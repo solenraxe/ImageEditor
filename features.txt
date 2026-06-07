@@ -9,15 +9,14 @@ Current :
 - Blur
 - Drag & Drop Images
 - Keyboard Shortcuts
+- Ratio
+    - Add presets (Instagram Story, YouTube Thumbnail...)
+    - Change ratio without cropping
+- Download Settings
 
 To be added :
 - Background Editor
     - Fill with solid Color
     - Make transparent
-- Ratio
-    - Add presets (Instagram Story, YouTube Thumbnail...)
-    - Change ratio without cropping
-
-- Download Settings
 
 - Drag Images where you want them

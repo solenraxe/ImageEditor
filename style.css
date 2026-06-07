@@ -144,6 +144,10 @@ body {
     color: var(--text-color);
 }
 
+option {
+    background-color: var(--secondary-color);
+}
+
 .clr-inp {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -177,4 +181,9 @@ body {
 
 #drawing-canvas {
     border: 2px solid var(--accent-color);
+}
+
+#download-as-zone {
+    color: var(--text-color);
+    font-weight: normal;
 }
