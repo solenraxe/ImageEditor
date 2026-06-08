@@ -37,8 +37,8 @@ body {
 }
 
 #mode-list {
-    margin-left: 5%;
-    padding: 20px;
+    margin-left: 2%;
+    padding: 10px;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
@@ -46,19 +46,60 @@ body {
     background-color: var(--secondary-color);
     border-radius: 15px;
     border: 4px solid var(--accent-color);
-    width: 20%;
+    width: 15%;
     height: 500px;
+}
+
+#layer-zone {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--secondary-color);
+    border-radius: 15px;
+    border: 4px solid var(--accent-color);
+    width: 15%;
+    height: 500px;
+}
+
+#layer-display {
+    background-color: var(--secondary-color);
+    width: 80%;
+    height: 83%;
+    border-radius: 15px;
+    border: 4px solid var(--accent-color);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+}
+
+#modify-zone {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#modify-zone * {
+    margin-left: 5px;
+    margin-right: 5px;
+    height: 50%;
+}
+
+#layer-display.button {
+    width: 80%;
 }
 
 #img-zone {
     padding: 3%;
     background-color: var(--secondary-color);
-    width: 60%;
+    width: 50%;
     display: flex;
     flex-direction: column;
     align-items: space-evenly;
     border-radius: 15px;
     border: 4px solid var(--accent-color);
+    margin: 2%;
 }
 #img-zone > div {
     margin: 20px;
@@ -142,6 +183,7 @@ body {
     padding: 0;
     background: none;
     color: var(--text-color);
+    text-align: center;
 }
 
 option {
@@ -181,6 +223,12 @@ option {
 
 #drawing-canvas {
     border: 2px solid var(--accent-color);
+}
+
+#follow-up-zone {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
 }
 
 #download-as-zone {

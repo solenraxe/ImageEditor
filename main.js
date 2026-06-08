@@ -7,8 +7,11 @@ image.src = "Beest.png";
 
 let format = "png";
 
+let layers = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
+let currentLayer = 0;
+
 function download() {
-    const dataURL = canvas.toDataURL("image/png");
+    const dataURL = canvas.toDataURL("image/" + format);
 
     const a = document.createElement("a");
     a.href = dataURL;
@@ -21,6 +24,88 @@ downloadAs.addEventListener("change", function() {
     format = downloadAs.value
 })
 
+let layerCont = document.getElementById("layer-display");
+function createButton() {
+    let newButton = document.createElement("button");
+    const layerIndex = layers.length - 1;
+    newButton.onclick = () => changeLayer(layerIndex);
+    newButton.className = "button";
+    newButton.textContent = "Layer " + (currentLayer+1);
+    layerCont.appendChild(newButton);
+}
+createButton();
+
+function addLayer() {
+    layers[currentLayer] = ctx.getImageData(0, 0, canvas.width, canvas.height)
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    layers.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+
+    currentLayer = layers.length - 1;
+
+    createButton();
+}
+
+function changeLayer(num) {
+    layers[currentLayer] = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    currentLayer = num;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    let imageData = layers[currentLayer];
+    canvas.width = imageData.width;
+    canvas.height = imageData.height;
+    canvas.style.width = Math.floor(250 * (imageData.width/imageData.height)) + "px";
+    ctx.putImageData(layers[currentLayer], 0, 0);
+
+    image.src = canvas.toDataURL("image/png");
+    image.onload = function() {
+        const targetHeight = 200;
+        const dimRatio = targetHeight / image.naturalHeight;
+    
+        const targetWidth = Math.floor(image.naturalWidth * dimRatio);
+
+        image.style.width = targetWidth + "px";
+        image.style.height = targetHeight + "px";
+
+        image.width = targetWidth;
+        image.height = targetHeight;
+
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+
+        canvas.style.width = Math.floor(250 * (image.naturalWidth/image.naturalHeight)) + "px";
+
+        processImage(image);
+    }
+}
+
+function mergeLayers() {
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext("2d");
+
+    for (let imageData of layers) {
+        const offscreen = document.createElement("canvas");
+        offscreen.width = canvas.width;
+        offscreen.height = canvas.height;
+        offscreen.getContext("2d").putImageData(imageData, 0, 0);
+        const xPos = Math.round(canvas.width/2 - imageData.width/2);
+        const yPos = Math.round(canvas.height/2 - imageData.height/2);
+        tempCtx.drawImage(offscreen, xPos, yPos);
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(tempCanvas, 0, 0);
+    layers = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
+    currentLayer = 0;
+
+    layerCont.innerHTML = "";
+
+    createButton();
+}
+
 let modesElements = {
     "padding": [document.getElementById("p-width"), document.getElementById("p-height")],
     "filter": [document.getElementById("f-color")],
@@ -31,6 +116,7 @@ let modesElements = {
     "round": [document.getElementById("r-radius")],
     "blur": [document.getElementById("b-intensity")],
     "ratio": [document.getElementById("r-type"), document.getElementById("r-presets")],
+    "background": [document.getElementById("b-type"), document.getElementById("b-threshold")],
 }
 
 for (let mode in modesElements) {
@@ -64,21 +150,29 @@ let bIntensityINP = document.getElementById("b-intensity-inp");
 let rTypeINP = document.getElementById("r-type-inp");
 let rPresetsINP = document.getElementById("r-presets-inp");
 
+let bColorINP = document.getElementById("b-color-inp");
+let bTypeINP = document.getElementById("b-type-inp");
+bTypeINP.addEventListener("change", function() {
+    if (bTypeINP.value === "change") {
+        document.getElementById("b-color").style.display = "block";
+    } else {
+        document.getElementById("b-color").style.display = "none";
+    }
+})
+let bThresholdINP = document.getElementById("b-threshold-inp");
+
 let currentMode = "padding";
 for (let elem of modesElements[currentMode]) {
     elem.style.display = "block";
-    let inputElem = document.getElementById(elem.id + "-inp");
 }
 function changeMode(mode) {
     for (let elem of modesElements[currentMode]) {
         elem.style.display = "none";
-        let inputElem = document.getElementById(elem.id + "-inp");
     }
 
     currentMode = mode;
     for (let elem of modesElements[currentMode]) {
         elem.style.display = "block";
-        let inputElem = document.getElementById(elem.id + "-inp");
     }
 }
 
@@ -441,6 +535,86 @@ function changeImageRatio(img) {
     }
 }
 
+function editBackground(img) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    let threshold = bThresholdINP.value
+    let editMode = bTypeINP.value
+
+    const prevW = img.naturalWidth;
+    const prevH = img.naturalHeight;
+    
+    canvas.width = prevW;
+    canvas.height = prevH;
+
+    ctx.drawImage(img, 0, 0);
+    const imageData = ctx.getImageData(0, 0, prevW, prevH);
+    const data = imageData.data;
+
+    let colors = {};
+    for (let y = 0; y < canvas.height; y++) {
+        for (let x = 0; x < canvas.width; x++) {
+            const index = (y * canvas.width + x) * 4;
+
+            let r = Math.round(data[index]/threshold) * threshold;
+            let g = Math.round(data[index + 1]/threshold) * threshold;
+            let b = Math.round(data[index + 2]/threshold) * threshold;
+            
+            let colorKey = `${r},${g},${b}`;
+
+            let distToCenter = Math.sqrt((prevW/2 - x)**2 + (prevH - y)**2);
+
+            if (colors[colorKey]) {
+                colors[colorKey] += 1 + distToCenter/threshold;
+            } else {
+                colors[colorKey] = 1 + distToCenter/threshold;
+            }
+        }
+    }
+
+    let backgroundColorKey = "";
+    let currentMax = 0;
+    const colorKeys = Object.keys(colors);
+    
+    for (let colorKey of colorKeys) {
+        if (colors[colorKey] > currentMax) {
+            currentMax = colors[colorKey];
+            backgroundColorKey = colorKey;
+        }
+    }
+
+    const newImageData = ctx.createImageData(prevW, prevH);
+    const newData = newImageData.data;
+    
+    for (let y = 0; y < canvas.height; y++) {
+        for (let x = 0; x < canvas.width; x++) {
+            const index = (y * canvas.width + x) * 4;
+
+            let r = Math.round(data[index]/threshold) * threshold;
+            let g = Math.round(data[index + 1]/threshold) * threshold;
+            let b = Math.round(data[index + 2]/threshold) * threshold;
+            let colorKey = `${r},${g},${b}`;
+
+            newData[index] = data[index];
+            newData[index+1] = data[index+1];
+            newData[index+2] = data[index+2];
+            newData[index+3] = data[index+3];
+
+            if (colorKey === backgroundColorKey) {
+                if (editMode === "remove") {
+                    newData[index+3] = 0;
+                } else if (editMode === "change") {
+                    let rgb = hexToRgb(bColorINP.value)
+                    newData[index] = rgb.r
+                    newData[index+1] = rgb.g
+                    newData[index+2] = rgb.b
+                }
+            } 
+        }
+    }
+    ctx.putImageData(newImageData, 0, 0);
+}
+
 function processImage(img) {
     if (img.width === 0 || img.height === 0) { return; }
 
@@ -462,6 +636,8 @@ function processImage(img) {
         blurImage(img);
     } else if (currentMode === "ratio") {
         changeImageRatio(img);
+    } else if (currentMode === "background") {
+        editBackground(img)
     }
 }
 
@@ -574,7 +750,7 @@ document.addEventListener("keydown", function(event) {
         reEdit();
     } else if (event.key === "Escape") {
         download();
-    } else if (event.key === "Backspace") {
+    } else if (event.key === "Sup") {
         event.preventDefault();
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
