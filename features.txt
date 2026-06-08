@@ -19,3 +19,9 @@ Current :
 
 To be added :
 - Drag Images where you want them
+- Layer System
+    - Other Images
+    - Split Image from Background
+    - Text Layers
+- Transform Tool
+- Text Tool

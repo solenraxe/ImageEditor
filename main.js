@@ -7,7 +7,8 @@ image.src = "Beest.png";
 
 let format = "png";
 
-let layers = [];
+let layers = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
+let currentLayer = 0;
 
 function download() {
     const dataURL = canvas.toDataURL("image/" + format);
@@ -22,6 +23,88 @@ let downloadAs = document.getElementById("download-as");
 downloadAs.addEventListener("change", function() {
     format = downloadAs.value
 })
+
+let layerCont = document.getElementById("layer-display");
+function createButton() {
+    let newButton = document.createElement("button");
+    const layerIndex = layers.length - 1;
+    newButton.onclick = () => changeLayer(layerIndex);
+    newButton.className = "button";
+    newButton.textContent = "Layer " + (currentLayer+1);
+    layerCont.appendChild(newButton);
+}
+createButton();
+
+function addLayer() {
+    layers[currentLayer] = ctx.getImageData(0, 0, canvas.width, canvas.height)
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    layers.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+
+    currentLayer = layers.length - 1;
+
+    createButton();
+}
+
+function changeLayer(num) {
+    layers[currentLayer] = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    currentLayer = num;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    let imageData = layers[currentLayer];
+    canvas.width = imageData.width;
+    canvas.height = imageData.height;
+    canvas.style.width = Math.floor(250 * (imageData.width/imageData.height)) + "px";
+    ctx.putImageData(layers[currentLayer], 0, 0);
+
+    image.src = canvas.toDataURL("image/png");
+    image.onload = function() {
+        const targetHeight = 200;
+        const dimRatio = targetHeight / image.naturalHeight;
+    
+        const targetWidth = Math.floor(image.naturalWidth * dimRatio);
+
+        image.style.width = targetWidth + "px";
+        image.style.height = targetHeight + "px";
+
+        image.width = targetWidth;
+        image.height = targetHeight;
+
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+
+        canvas.style.width = Math.floor(250 * (image.naturalWidth/image.naturalHeight)) + "px";
+
+        processImage(image);
+    }
+}
+
+function mergeLayers() {
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext("2d");
+
+    for (let imageData of layers) {
+        const offscreen = document.createElement("canvas");
+        offscreen.width = canvas.width;
+        offscreen.height = canvas.height;
+        offscreen.getContext("2d").putImageData(imageData, 0, 0);
+        const xPos = Math.round(canvas.width/2 - imageData.width/2);
+        const yPos = Math.round(canvas.height/2 - imageData.height/2);
+        tempCtx.drawImage(offscreen, xPos, yPos);
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(tempCanvas, 0, 0);
+    layers = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
+    currentLayer = 0;
+
+    layerCont.innerHTML = "";
+
+    createButton();
+}
 
 let modesElements = {
     "padding": [document.getElementById("p-width"), document.getElementById("p-height")],
