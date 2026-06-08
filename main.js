@@ -738,10 +738,12 @@ function transformTool(img) {
         canvas.addEventListener("mouseleave", onMouseLeave);
 
     } else if (transformType === "none") {
+
         canvas.removeEventListener("mousedown", onMouseDown);
         canvas.removeEventListener("mousemove", onMouseMove);
         canvas.removeEventListener("mouseup", onMouseUp);
         canvas.removeEventListener("mouseleave", onMouseLeave);
+        
     }
 }
 

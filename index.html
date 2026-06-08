@@ -14,7 +14,7 @@
                 <p><b>Modes List:</b></p>
 
                 <div class="mode">
-                    <button class="button" id="padding-mode" onclick="changeMode('padding')">Add Padding</button>
+                    <button class="button" id="padding-mode" onclick="changeMode('padding')">↔ Add Padding</button>
                     
                     <div class="input-group" id="p-width">
                         <label for="p-width-inp">Width:</label>
@@ -28,7 +28,7 @@
                 </div>
 
                 <div class="mode">
-                    <button class="button" id="filter-mode" onclick="changeMode('filter')">Color Filter</button>
+                    <button class="button" id="filter-mode" onclick="changeMode('filter')">🎨 Color Filter</button>
 
                     <div class="input-group" id="f-color">
                         <label for="f-color-inp">Filter's Color:</label>
@@ -37,15 +37,15 @@
                 </div>
 
                 <div class="mode">
-                    <button class="button" id="replace-mode" onclick="changeMode('replace')">Replace Color</button>
+                    <button class="button" id="replace-mode" onclick="changeMode('replace')">🔀 Replace Color</button>
 
                     <div class="input-group" id="r-color-1">
-                        <label for="r-color-1-inp">Original Color:</label>
+                        <label for="r-color-1-inp">Original:</label>
                         <input type="color" id="r-color-1-inp" value="#000000" class="clr-inp">
                     </div>
 
                     <div class="input-group" id="r-color-2">
-                        <label for="r-color-2-inp">Replacement Color:</label>
+                        <label for="r-color-2-inp">Replace By:</label>
                         <input type="color" id="r-color-2-inp" value="#000000" class="clr-inp">
                     </div>
 
@@ -56,7 +56,7 @@
                 </div>
 
                 <div class="mode">
-                    <button class="button" id="merge-mode" onclick="changeMode('merge')">Merge Images</button>
+                    <button class="button" id="merge-mode" onclick="changeMode('merge')">🖼 Merge Images</button>
 
                     <div class="input-group" id="m-nbr">
                         <label for="m-nbr-inp">Number of Images:</label>
@@ -65,7 +65,7 @@
                 </div>
 
                 <div class="mode">
-                    <button class="button" id="opacity-mode" onclick="changeMode('opacity')">Change Opacity</button>
+                    <button class="button" id="opacity-mode" onclick="changeMode('opacity')">🔍 Change Opacity</button>
 
                     <div class="input-group" id="o-ratio">
                         <label for="o-ratio-inp">Opacity Ratio:</label>
@@ -74,7 +74,7 @@
                 </div>
 
                 <div class="mode">
-                    <button class="button" id="flip-mode" onclick="changeMode('flip')">Flip Image</button>
+                    <button class="button" id="flip-mode" onclick="changeMode('flip')">🔄 Flip Image</button>
 
                     <div class="input-group" id="f-direction">
                         <label for="f-direction-inp">Flip Direction:</label>
@@ -86,7 +86,7 @@
                 </div>
 
                 <div class="mode">
-                    <button class="button" id="round-mode" onclick="changeMode('round')">Round Corners</button>
+                    <button class="button" id="round-mode" onclick="changeMode('round')">⚪ Round Corners</button>
 
                     <div class="input-group" id="r-radius">
                         <label for="r-radius-inp">Radius:</label>
@@ -95,7 +95,7 @@
                 </div>
 
                 <div class="mode">
-                    <button class="button" id="blur-mode" onclick="changeMode('blur')">Blur Image</button>
+                    <button class="button" id="blur-mode" onclick="changeMode('blur')">🌫 Blur Image</button>
 
                     <div class="input-group" id="b-intensity">
                         <label for="b-intensity-inp">Intensity:</label>
@@ -104,7 +104,7 @@
                 </div>
 
                 <div class="mode">
-                    <button class="button" id="ratio-mode" onclick="changeMode('ratio')">Change Image Ratio</button>
+                    <button class="button" id="ratio-mode" onclick="changeMode('ratio')">📐 Change Image Ratio</button>
 
                     <div class="input-group" id="r-type">
                         <label for="r-type-inp">Ratio Type:</label>
@@ -128,7 +128,7 @@
                 </div>
 
                 <div class="mode">
-                    <button class="button" id="background-mode" onclick="changeMode('background')">Edit Background</button>
+                    <button class="button" id="background-mode" onclick="changeMode('background')">👨‍🏫 Edit Background</button>
 
                     <div class="input-group" id="b-type">
                         <label for="b-type-inp">Edit Type:</label>
@@ -151,7 +151,7 @@
                 </div>
 
                 <div class="mode">
-                    <button class="button" id="text-mode" onclick="changeMode('text')">Text</button>
+                    <button class="button" id="text-mode" onclick="changeMode('text')">✍ Text</button>
 
                     <div class="input-group" id="t-text">
                         <label for="t-text-inp">Text Content:</label>
@@ -177,7 +177,7 @@
                 </div>
 
                 <div class="mode">
-                    <button class="button" id="transform-mode" onclick="changeMode('transform')">Transform</button>
+                    <button class="button" id="transform-mode" onclick="changeMode('transform')">📏 Transform</button>
 
                     <div class="input-group" id="t-type">
                         <label for="t-type-inp">Transform Type:</label>
@@ -189,18 +189,10 @@
                 </div>
             </div>
 
-            <div id="img-zone" class="pres">
-                <div id="render-zone">
-                    <div id="input-zone">
-                        <label class="button" for="img-input">Upload Image...</label>
-                        <input type="file" id="img-input" accept=".png, .jpg, .jped" multiple>
-                        <img id="source-img" src="Beest.png" alt="Your image will appear here">
-                    </div>
-
-                    <canvas id="drawing-canvas" width="250" height="250"></canvas>
-                </div>
-
-                <div id="follow-up-zone">
+            <div id="main-zone">
+                <div id="top-bar" class="pres">
+                    <label class="button" for="img-input" id="actual-input">Upload Image...</label>
+                    <input type="file" id="img-input" accept=".png, .jpg, .jped" multiple>
                     <button class="button" id="re-edit" onclick="reEdit()">Edit created image</button>
                     <button class="button" id="download" onclick="download()">Download...</button>
                     <div id="download-as-zone">
@@ -212,18 +204,28 @@
                         </select>
                     </div>
                 </div>
+
+                <div id="img-zone" class="pres">
+                    <div id="render-zone">
+                        <div id="input-zone">
+                            <img id="source-img" src="Beest.png" alt="Drag & Drop or Browse for an image.">
+                        </div>
+
+                        <canvas id="drawing-canvas" width="250" height="250"></canvas>
+                    </div>
+                </div>
             </div>
 
             <div id="layer-zone" class="pres">
-                <div id="modify-zone">
-                    <p><b>Layers:</b></p>
-                    <button class="button" onclick="addLayer()">+</button>
-                    <button class="button" onclick="mergeLayers()">&gt;&lt;</button>
+                    <div id="modify-zone">
+                        <p><b>Layers:</b></p>
+                        <button class="button small" onclick="mergeLayers()">&gt;&lt;</button>
+                        <button class="button small" onclick="addLayer()"><b>+</b></button>
+                    </div>
+                    
+                    <div id="layer-display">
+                    </div>
                 </div>
-                
-                <div id="layer-display">
-                </div>
-            </div>
         </div>
 
         <div id="footer" class="pres">
