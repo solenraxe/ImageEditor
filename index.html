@@ -135,6 +135,7 @@
                         <select id="b-type-inp" class="sel-inp">
                             <option value="remove">Remove</option>
                             <option value="change">Change Color</option>
+                            <option value="split">Split</option>
                         </select>
                     </div>
 
@@ -146,6 +147,43 @@
                     <div class="input-group" id="b-color">
                         <label for="b-color-inp">Replacement Color:</label>
                         <input type="color" id="b-color-inp" value="#000000" class="clr-inp">
+                    </div>
+                </div>
+
+                <div class="mode">
+                    <button class="button" id="text-mode" onclick="changeMode('text')">Text</button>
+
+                    <div class="input-group" id="t-text">
+                        <label for="t-text-inp">Text Content:</label>
+                        <input type="text" id="t-text-inp" placeholder="Text" class="nbr-inp">
+                    </div>
+
+                    <div class="input-group" id="t-size">
+                        <label for="t-size-inp">Font Size:</label>
+                        <input type="number" id="t-size-inp" min="0" value="16" class="nbr-inp">
+                    </div>
+
+                    <div class="input-group" id="t-font">
+                        <label for="t-font-inp">Font:</label>
+                        <select id="t-font-inp" class="sel-inp">
+                            <option value="serfi">Serif</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" id="t-color">
+                        <label for="t-color-inp">Font Color:</label>
+                        <input type="color" value="#000000" class="clr-inp" id="t-color-inp">
+                    </div>
+                </div>
+
+                <div class="mode">
+                    <button class="button" id="transform-mode" onclick="changeMode('transform')">Transform</button>
+
+                    <div class="input-group" id="t-type">
+                        <label for="t-type-inp">Transform Type:</label>
+                        <select id="t-type-inp" class="sel-inp">
+                            <option value="move">Move</option>
+                        </select>
                     </div>
                 </div>
             </div>

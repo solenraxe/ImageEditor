@@ -76,11 +76,13 @@ function changeLayer(num) {
 
         canvas.style.width = Math.floor(250 * (image.naturalWidth/image.naturalHeight)) + "px";
 
-        processImage(image);
+        ctx.drawImage(image, 0, 0)
     }
 }
 
 function mergeLayers() {
+    layers[currentLayer] = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
     const tempCanvas = document.createElement("canvas");
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
@@ -98,6 +100,27 @@ function mergeLayers() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(tempCanvas, 0, 0);
+    image.src = canvas.toDataURL("image/png");
+    image.onload = function() {
+        const targetHeight = 200;
+        const dimRatio = targetHeight / image.naturalHeight;
+    
+        const targetWidth = Math.floor(image.naturalWidth * dimRatio);
+
+        image.style.width = targetWidth + "px";
+        image.style.height = targetHeight + "px";
+
+        image.width = targetWidth;
+        image.height = targetHeight;
+
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+
+        canvas.style.width = Math.floor(250 * (image.naturalWidth/image.naturalHeight)) + "px";
+
+        ctx.drawImage(image, 0, 0)
+    }
+
     layers = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
     currentLayer = 0;
 
@@ -117,6 +140,8 @@ let modesElements = {
     "blur": [document.getElementById("b-intensity")],
     "ratio": [document.getElementById("r-type"), document.getElementById("r-presets")],
     "background": [document.getElementById("b-type"), document.getElementById("b-threshold")],
+    "text": [document.getElementById("t-text"), document.getElementById("t-size"), document.getElementById("t-font"), document.getElementById("t-color")],
+    "transform": [document.getElementById("t-type")],
 }
 
 for (let mode in modesElements) {
@@ -160,6 +185,13 @@ bTypeINP.addEventListener("change", function() {
     }
 })
 let bThresholdINP = document.getElementById("b-threshold-inp");
+
+let tTextINP = document.getElementById("t-text-inp");
+let tSizeINP = document.getElementById("t-size-inp");
+let tFontINP = document.getElementById("t-font-inp");
+let tColorINP = document.getElementById("t-color-inp");
+
+let tTypeINP = document.getElementById("t-type-inp");
 
 let currentMode = "padding";
 for (let elem of modesElements[currentMode]) {
@@ -456,9 +488,9 @@ function blurImage(img) {
                 }
             }
 
-            blurredDataArray[index] = rSum / count;
-            blurredDataArray[index + 1] = gSum / count;
-            blurredDataArray[index + 2] = bSum / count;
+            blurredDataArray[index]   = count > 0 ? rSum / count : 0;
+            blurredDataArray[index+1] = count > 0 ? gSum / count : 0;
+            blurredDataArray[index+2] = count > 0 ? bSum / count : 0;
             blurredDataArray[index + 3] = data[index + 3];
         }
     }
@@ -583,6 +615,8 @@ function editBackground(img) {
         }
     }
 
+    const backgroundImageData = ctx.createImageData(prevW, prevH);
+    const backgroundData = backgroundImageData.data;
     const newImageData = ctx.createImageData(prevW, prevH);
     const newData = newImageData.data;
     
@@ -595,12 +629,11 @@ function editBackground(img) {
             let b = Math.round(data[index + 2]/threshold) * threshold;
             let colorKey = `${r},${g},${b}`;
 
-            newData[index] = data[index];
-            newData[index+1] = data[index+1];
-            newData[index+2] = data[index+2];
-            newData[index+3] = data[index+3];
-
             if (colorKey === backgroundColorKey) {
+                backgroundData[index] = data[index];
+                backgroundData[index+1] = data[index+1];
+                backgroundData[index+2] = data[index+2];
+                backgroundData[index+3] = data[index+3];
                 if (editMode === "remove") {
                     newData[index+3] = 0;
                 } else if (editMode === "change") {
@@ -609,10 +642,31 @@ function editBackground(img) {
                     newData[index+1] = rgb.g
                     newData[index+2] = rgb.b
                 }
-            } 
+            } else {
+                newData[index] = data[index];
+                newData[index+1] = data[index+1];
+                newData[index+2] = data[index+2];
+                newData[index+3] = data[index+3];
+            }
         }
     }
     ctx.putImageData(newImageData, 0, 0);
+    addLayer();
+    ctx.putImageData(backgroundImageData, 0, 0);
+}
+
+function addText() {
+    let text = tTextINP.value;
+    let size = tSizeINP.value;
+    let color = tColorINP.value;
+    let font = tFontINP.value;
+
+    ctx.font = size + "px " + font;
+    ctx.fillStyle = color;
+
+    const xPos = Math.round(canvas.width/2 - (size/4)*text.length + size/2);
+    const yPos = Math.round(canvas.height/2 + size/2)
+    ctx.fillText(text, xPos, yPos);
 }
 
 function processImage(img) {
@@ -638,6 +692,8 @@ function processImage(img) {
         changeImageRatio(img);
     } else if (currentMode === "background") {
         editBackground(img)
+    } else if (currentMode === "text") {
+        addText()
     }
 }
 
