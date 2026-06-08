@@ -1,3 +1,5 @@
+let renderZone = document.getElementById("render-zone")
+
 let canvas = document.getElementById("drawing-canvas");
 const ctx = canvas.getContext("2d", {willReadFrequently: true});
 
@@ -669,6 +671,80 @@ function addText() {
     ctx.fillText(text, xPos, yPos);
 }
 
+let isDragging = false;
+let dragStartX = 0, dragStartY = 0;
+let offsetX = 0, offsetY = 0;
+
+function getCanvasPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width  / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top)  * scaleY,
+    };
+}
+
+function onMouseDown(e) {
+    isDragging = true;
+    const pos = getCanvasPos(e);
+    dragStartX = pos.x - offsetX;
+    dragStartY = pos.y - offsetY;
+}
+
+function onMouseMove(e) {
+    if (!isDragging) return;
+    const pos = getCanvasPos(e);
+    offsetX = pos.x - dragStartX;
+    offsetY = pos.y - dragStartY;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(image, offsetX, offsetY);
+}
+
+function onMouseUp() {
+    isDragging = false;
+}
+
+function onMouseLeave() {
+    if (isDragging) {
+        isDragging = false;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(image, offsetX, offsetY);
+    }
+}
+
+function transformTool(img) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    let threshold = bThresholdINP.value;
+    let editMode = bTypeINP.value;
+
+    const prevW = img.naturalWidth;
+    const prevH = img.naturalHeight;
+
+    canvas.width = prevW;
+    canvas.height = prevH;
+
+    ctx.drawImage(img, 0, 0);
+
+    let transformType = tTypeINP.value;
+
+    if (transformType === "move") {
+
+        canvas.addEventListener("mousedown", onMouseDown);
+        canvas.addEventListener("mousemove", onMouseMove);
+        canvas.addEventListener("mouseup", onMouseUp);
+        canvas.addEventListener("mouseleave", onMouseLeave);
+
+    } else if (transformType === "none") {
+        canvas.removeEventListener("mousedown", onMouseDown);
+        canvas.removeEventListener("mousemove", onMouseMove);
+        canvas.removeEventListener("mouseup", onMouseUp);
+        canvas.removeEventListener("mouseleave", onMouseLeave);
+    }
+}
+
 function processImage(img) {
     if (img.width === 0 || img.height === 0) { return; }
 
@@ -691,9 +767,11 @@ function processImage(img) {
     } else if (currentMode === "ratio") {
         changeImageRatio(img);
     } else if (currentMode === "background") {
-        editBackground(img)
+        editBackground(img);
     } else if (currentMode === "text") {
-        addText()
+        addText();
+    } else if (currentMode === "transform") {
+        transformTool(img);
     }
 }
 
