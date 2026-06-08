@@ -16,7 +16,7 @@ You can then recolor it, change specific colors, change your its opacity, add pa
 This all may seem a bit random, but I only added what the development team mentioned before asked me to, my goal was to not let them down too much...
 Since the V2, you can now edit an image multiple times in a row by clicking the button "Edit created image", this wasn't possible in the V1 as it used one web page per mode.
 When you're satisfied with the result, the only thing left for you to do is dowload your image.
-<img width="400" height="180" alt="image" src="https://github.com/user-attachments/assets/3db3e666-4898-451e-b6b5-bc82f7f61bb7" />
+<img width="475" height="225" alt="image" src="https://github.com/user-attachments/assets/16e6d956-c82f-4033-9416-1ab50962d50b" />
 
 HOW IT WORKS:
 Every time you modify a parameter or update an image, the main script calls a function to proccess the image, this function will then modify the image according to the mode you chose and the parameters you put.
