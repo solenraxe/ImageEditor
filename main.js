@@ -131,7 +131,7 @@ document.addEventListener("keydown", function(event) {
         clearCanvas();
     }
 });
-// Drag
+// Drag & Drop
 dropZone.addEventListener("drop", async function(event) {
     event.preventDefault();
     const files = event.dataTransfer.files;
@@ -450,6 +450,25 @@ function onMouseLeave() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(image, offsetX, offsetY);
     }
+}
+function onMouseMoveRotate(e) {
+    if (!isDragging) return;
+    const pos = getCanvasPos(e);
+    offsetX = pos.x - dragStartX;
+
+    const angleInRadians = (Math.PI*2)*offsetX/360;
+
+    clearCanvas();
+    var x = canvas.width / 2;
+    var y = canvas.height / 2;
+    var width = image.width;
+    var height = image.height;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angleInRadians);
+    ctx.drawImage(image, -width / 2, -height / 2, width, height);
+    ctx.restore();
 }
 // Modes Functions
 function addPadding(img) {
@@ -933,19 +952,33 @@ function transformTool(img) {
 
     let transformType = tTypeINP.value;
 
+    isDragging = false;
+    dragStartX = 0, dragStartY = 0;
+    offsetX = 0, offsetY = 0;
+
     if (transformType === "move") {
 
+        canvas.style.cursor = "pointer";
         canvas.addEventListener("mousedown", onMouseDown);
         canvas.addEventListener("mousemove", onMouseMove);
         canvas.addEventListener("mouseup", onMouseUp);
         canvas.addEventListener("mouseleave", onMouseLeave);
 
-    } else if (transformType === "none") {
+    } else if (transformType === "rotate") {
 
+        canvas.style.cursor = "pointer";
+        canvas.addEventListener("mousedown", onMouseDown);
+        canvas.addEventListener("mousemove", onMouseMoveRotate);
+        canvas.addEventListener("mouseup", onMouseUp);
+
+    } else {
+
+        canvas.style.cursor = "auto";
         canvas.removeEventListener("mousedown", onMouseDown);
         canvas.removeEventListener("mousemove", onMouseMove);
         canvas.removeEventListener("mouseup", onMouseUp);
         canvas.removeEventListener("mouseleave", onMouseLeave);
+        canvas.removeEventListener("mousemove", onMouseMoveRotate);
         
     }
 }

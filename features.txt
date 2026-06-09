@@ -21,7 +21,7 @@ Current :
     - Split Image from Background
     - Text Layers
 - Text Tool
+- Canvas Sizing
 
 To be added :
 - Transform Tool
-- Canvas Sizing
