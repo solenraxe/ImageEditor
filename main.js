@@ -1,19 +1,204 @@
+// HTML Elements
 let renderZone = document.getElementById("render-zone")
-
 let canvas = document.getElementById("drawing-canvas");
+let image = document.getElementById("source-img");
+let downloadAs = document.getElementById("download-as");
+let layerCont = document.getElementById("layer-display");
+let imgINP = document.getElementById("img-input");
+let dropZone = document.getElementById("input-zone");
+
+
+// Inputs
+// Padding
+let pWidthINP = document.getElementById("p-width-inp");
+let pHeightINP = document.getElementById("p-height-inp");
+// Color Filter
+let fColorINP = document.getElementById("f-color-inp");
+// Replace Color
+let rColor1INP = document.getElementById("r-color-1-inp");
+let rColor2INP = document.getElementById("r-color-2-inp");
+let rThresholdINP = document.getElementById("r-threshold-inp");
+// Merge Images
+let mNbrINP = document.getElementById("m-nbr-inp");
+// Opacity
+let oRatioINP = document.getElementById("o-ratio-inp");
+// Flip
+let fDirectionINP = document.getElementById("f-direction-inp");
+// Round Corners
+let rRadiusINP = document.getElementById("r-radius-inp");
+// Blur
+let bIntensityINP = document.getElementById("b-intensity-inp");
+// Ratio
+let rTypeINP = document.getElementById("r-type-inp");
+let rPresetsINP = document.getElementById("r-presets-inp");
+// Background
+let bColorINP = document.getElementById("b-color-inp");
+let bTypeINP = document.getElementById("b-type-inp");
+let bThresholdINP = document.getElementById("b-threshold-inp");
+// Text
+let tTextINP = document.getElementById("t-text-inp");
+let tSizeINP = document.getElementById("t-size-inp");
+let tColorINP = document.getElementById("t-color-inp");
+// Transform
+let tTypeINP = document.getElementById("t-type-inp");
+
+//Canvas Sizing
+let canvasSizingINP = document.getElementById("canvas-sizing-inp");
+let canvasWidthINP = document.getElementById("canvas-width-inp");
+let canvasHeightINP = document.getElementById("canvas-height-inp");
+
+
+// Modes Elements
+let modesElements = {
+    "padding": [document.getElementById("p-width"), document.getElementById("p-height")],
+    "filter": [document.getElementById("f-color")],
+    "replace": [document.getElementById("r-color-1"), document.getElementById("r-color-2"), document.getElementById("r-threshold")],
+    "merge": [document.getElementById("m-nbr")],
+    "opacity": [document.getElementById("o-ratio")],
+    "flip": [document.getElementById("f-direction")],
+    "round": [document.getElementById("r-radius")],
+    "blur": [document.getElementById("b-intensity")],
+    "ratio": [document.getElementById("r-type"), document.getElementById("r-presets")],
+    "background": [document.getElementById("b-type"), document.getElementById("b-threshold")],
+    "text": [document.getElementById("t-text"), document.getElementById("t-size"), document.getElementById("t-color")],
+    "transform": [document.getElementById("t-type")],
+}
+
+
+// Init
+// Canvas
 const canvasWidth = canvas.clientWidth
 const ctx = canvas.getContext("2d", {willReadFrequently: true});
-
-let image = document.getElementById("source-img");
+let canvasSizing = "automatic";
+// Image
 const targetHeight = image.clientHeight
 image.crossOrigin = "anonymous";
 image.src = "Beest.png";
-
-let format = "png";
-
+let loadedImages = [];
+// Layers
 let layers = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
 let currentLayer = 0;
+// Drag
+let isDragging = false;
+let dragStartX = 0, dragStartY = 0;
+let offsetX = 0, offsetY = 0;
+// Others
+let format = "png";
+let currentMode = "padding";
 
+// Code
+createButton();
+for (let mode in modesElements) {
+    for (let elem of modesElements[mode]) {
+        let inputElem = document.getElementById(elem.id + "-inp");
+        inputElem.addEventListener("change", function() {
+            processImage(image);
+        })
+    }
+}
+for (let elem of modesElements[currentMode]) {
+    elem.style.display = "block";
+}
+
+
+// Event Listeners
+downloadAs.addEventListener("change", function() {
+    format = downloadAs.value
+})
+bTypeINP.addEventListener("change", function() {
+    if (bTypeINP.value === "change") {
+        document.getElementById("b-color").style.display = "block";
+    } else {
+        document.getElementById("b-color").style.display = "none";
+    }
+})
+imgINP.addEventListener("change", async function() {
+    const files = imgINP.files;
+    if (files.length === 0) {return;}
+
+    await uploadImage(files);
+})
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        processImage(image);
+    } else if (event.key === "Tab") {
+        event.preventDefault();
+        reEdit();
+    } else if (event.key === "Escape") {
+        download();
+    } else if (event.key === "X") {
+        event.preventDefault();
+        clearCanvas();
+    }
+});
+// Drag & Drop
+dropZone.addEventListener("drop", async function(event) {
+    event.preventDefault();
+    const files = event.dataTransfer.files;
+    if (files.length === 0) {return;}
+
+    await uploadImage(files);
+})
+window.addEventListener("drop", (e) => {
+  if ([...e.dataTransfer.items].some((item) => item.kind === "file")) {
+    e.preventDefault();
+  }
+});
+dropZone.addEventListener("dragover", (e) => {
+  const fileItems = [...e.dataTransfer.items].filter(
+    (item) => item.kind === "file",
+  );
+  if (fileItems.length > 0) {
+    e.preventDefault();
+    if (fileItems.some((item) => item.type.startsWith("image/"))) {
+      e.dataTransfer.dropEffect = "copy";
+    } else {
+      e.dataTransfer.dropEffect = "none";
+    }
+  }
+});
+window.addEventListener("dragover", (e) => {
+  const fileItems = [...e.dataTransfer.items].filter(
+    (item) => item.kind === "file",
+  );
+  if (fileItems.length > 0) {
+    e.preventDefault();
+    if (!dropZone.contains(e.target)) {
+      e.dataTransfer.dropEffect = "none";
+    }
+  }
+});
+// Canvas Sizing
+canvasSizingINP.addEventListener("change", function() {
+    if (canvasSizingINP.value === "manual") {
+        for (let element of document.getElementsByClassName("canvas-size-input")) {
+            element.style.display = "block";
+        }
+        canvas.height = parseInt(canvasHeightINP.value);
+        canvas.width = parseInt(canvasWidthINP.value);
+    } else {
+        for (let element of document.getElementsByClassName("canvas-size-input")) {
+            element.style.display = "none";
+        }
+    }
+    canvasSizing = canvasSizingINP.value;
+})
+canvasHeightINP.addEventListener("change", function() {
+    if (canvasSizingINP.value === "manual") {
+        canvas.height = canvasHeightINP.value;
+    }
+    processImage(image);
+})
+canvasWidthINP.addEventListener("change", function() {
+    if (canvasSizingINP.value === "manual") {
+        canvas.width = canvasWidthINP.value;
+    }
+    processImage(image);
+})
+
+
+// Functions
+// Utility Functions
 function download() {
     const dataURL = canvas.toDataURL("image/" + format);
 
@@ -22,13 +207,96 @@ function download() {
     a.download = "image." + format;
     a.click();
 }
+function changeMode(mode) {
+    for (let elem of modesElements[currentMode]) {
+        elem.style.display = "none";
+    }
 
-let downloadAs = document.getElementById("download-as");
-downloadAs.addEventListener("change", function() {
-    format = downloadAs.value
-})
+    currentMode = mode;
+    for (let elem of modesElements[currentMode]) {
+        elem.style.display = "block";
+    }
+}
+async function uploadImage(files) {
+    let imgNbr = 1;
+    if (currentMode === "merge") {
+        imgNbr = parseInt(mNbrINP.value);
+    }
 
-let layerCont = document.getElementById("layer-display");
+    let maxH = 0;
+    let maxW = 0;
+
+    for (let i=0; i<Math.min(imgNbr, files.length); i++) {
+        let file = files[i];
+
+        const tempImg = new Image();
+        tempImg.crossOrigin = "anonymous";
+        tempImg.src = URL.createObjectURL(file);
+
+        await new Promise((resolve) => {
+            tempImg.onload = function() {
+                if (tempImg.naturalHeight > maxH) { maxH = tempImg.naturalHeight; }
+                if (tempImg.naturalWidth > maxW) { maxW = tempImg.naturalWidth; }
+                
+                loadedImages.push(tempImg);
+                resolve();
+            };
+        });
+    }
+
+    if (canvasSizing === "automatic") {
+        canvas.width = maxW;
+        canvas.height = maxH;
+    }
+
+    canvas.style.width = Math.floor(canvasWidth * (maxW / maxH)) + "px";
+
+    for (let imageN of loadedImages) {
+        processImage(imageN);
+    }
+
+    if (loadedImages.length > 0) {
+        const lastImg = loadedImages[0];
+        const dimRatio = targetHeight / lastImg.naturalHeight;
+        
+        image.src = lastImg.src;
+        image.style.height = targetHeight + "px";
+        image.style.width = Math.floor(lastImg.naturalWidth * dimRatio) + "px";
+    }
+
+    if (loadedImages.length >= imgNbr) {
+        loadedImages = [];
+    }
+}
+function reEdit() {
+    image.src = canvas.toDataURL("image/png");
+    image.onload = function() {
+        loadedImages.push(image);
+
+        const dimRatio = targetHeight / image.naturalHeight;
+    
+        const targetWidth = Math.floor(image.naturalWidth * dimRatio);
+
+        image.style.width = targetWidth + "px";
+        image.style.height = targetHeight + "px";
+
+        image.width = targetWidth;
+        image.height = targetHeight;
+
+        if (canvasSizing === "automatic") {
+            canvas.width = image.naturalWidth;
+            canvas.height = image.naturalHeight;
+        }
+
+        canvas.style.width = Math.floor(canvasWidth * (canvas.width/canvas.height)) + "px";
+
+        processImage(image);
+    }
+}
+function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+// Layers
 function createButton() {
     let newButton = document.createElement("button");
     const layerIndex = layers.length - 1;
@@ -37,8 +305,6 @@ function createButton() {
     newButton.textContent = "Layer " + (currentLayer+1);
     layerCont.appendChild(newButton);
 }
-createButton();
-
 function addLayer() {
     layers[currentLayer] = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
@@ -49,7 +315,6 @@ function addLayer() {
 
     createButton();
 }
-
 function changeLayer(num) {
     layers[currentLayer] = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
@@ -57,8 +322,10 @@ function changeLayer(num) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     let imageData = layers[currentLayer];
-    canvas.width = imageData.width;
-    canvas.height = imageData.height;
+    if (canvasSizing === "automatic") {
+        canvas.width = imageData.width;
+        canvas.height = imageData.height;
+    }
     canvas.style.width = Math.floor(canvasWidth * (imageData.width/imageData.height)) + "px";
     ctx.putImageData(layers[currentLayer], 0, 0);
 
@@ -74,15 +341,16 @@ function changeLayer(num) {
         image.width = targetWidth;
         image.height = targetHeight;
 
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
+        if (canvasSizing === "automatic") {
+            canvas.width = image.naturalWidth;
+            canvas.height = image.naturalHeight;
+        }
 
-        canvas.style.width = Math.floor(canvasWidth * (image.naturalWidth/image.naturalHeight)) + "px";
+        canvas.style.width = Math.floor(canvasWidth * (canvas.width/canvas.height)) + "px";
 
         ctx.drawImage(image, 0, 0)
     }
 }
-
 function mergeLayers() {
     layers[currentLayer] = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
@@ -115,10 +383,12 @@ function mergeLayers() {
         image.width = targetWidth;
         image.height = targetHeight;
 
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
+        if (canvasSizing === "automatic") {
+            canvas.width = image.naturalWidth;
+            canvas.height = image.naturalHeight;
+        }
 
-        canvas.style.width = Math.floor(canvasWidth * (image.naturalWidth/image.naturalHeight)) + "px";
+        canvas.style.width = Math.floor(canvasWidth * (canvas.width/canvas.height)) + "px";
 
         ctx.drawImage(image, 0, 0)
     }
@@ -130,86 +400,7 @@ function mergeLayers() {
 
     createButton();
 }
-
-let modesElements = {
-    "padding": [document.getElementById("p-width"), document.getElementById("p-height")],
-    "filter": [document.getElementById("f-color")],
-    "replace": [document.getElementById("r-color-1"), document.getElementById("r-color-2"), document.getElementById("r-threshold")],
-    "merge": [document.getElementById("m-nbr")],
-    "opacity": [document.getElementById("o-ratio")],
-    "flip": [document.getElementById("f-direction")],
-    "round": [document.getElementById("r-radius")],
-    "blur": [document.getElementById("b-intensity")],
-    "ratio": [document.getElementById("r-type"), document.getElementById("r-presets")],
-    "background": [document.getElementById("b-type"), document.getElementById("b-threshold")],
-    "text": [document.getElementById("t-text"), document.getElementById("t-size"), document.getElementById("t-font"), document.getElementById("t-color")],
-    "transform": [document.getElementById("t-type")],
-}
-
-for (let mode in modesElements) {
-    for (let elem of modesElements[mode]) {
-        let inputElem = document.getElementById(elem.id + "-inp");
-        inputElem.addEventListener("change", function() {
-            processImage(image);
-        })
-    }
-}
-
-let pWidthINP = document.getElementById("p-width-inp");
-let pHeightINP = document.getElementById("p-height-inp");
-
-let fColorINP = document.getElementById("f-color-inp");
-
-let rColor1INP = document.getElementById("r-color-1-inp");
-let rColor2INP = document.getElementById("r-color-2-inp");
-let rThresholdINP = document.getElementById("r-threshold-inp");
-
-let mNbrINP = document.getElementById("m-nbr-inp");
-
-let oRatioINP = document.getElementById("o-ratio-inp");
-
-let fDirectionINP = document.getElementById("f-direction-inp");
-
-let rRadiusINP = document.getElementById("r-radius-inp");
-
-let bIntensityINP = document.getElementById("b-intensity-inp");
-
-let rTypeINP = document.getElementById("r-type-inp");
-let rPresetsINP = document.getElementById("r-presets-inp");
-
-let bColorINP = document.getElementById("b-color-inp");
-let bTypeINP = document.getElementById("b-type-inp");
-bTypeINP.addEventListener("change", function() {
-    if (bTypeINP.value === "change") {
-        document.getElementById("b-color").style.display = "block";
-    } else {
-        document.getElementById("b-color").style.display = "none";
-    }
-})
-let bThresholdINP = document.getElementById("b-threshold-inp");
-
-let tTextINP = document.getElementById("t-text-inp");
-let tSizeINP = document.getElementById("t-size-inp");
-let tFontINP = document.getElementById("t-font-inp");
-let tColorINP = document.getElementById("t-color-inp");
-
-let tTypeINP = document.getElementById("t-type-inp");
-
-let currentMode = "padding";
-for (let elem of modesElements[currentMode]) {
-    elem.style.display = "block";
-}
-function changeMode(mode) {
-    for (let elem of modesElements[currentMode]) {
-        elem.style.display = "none";
-    }
-
-    currentMode = mode;
-    for (let elem of modesElements[currentMode]) {
-        elem.style.display = "block";
-    }
-}
-
+// Helper Functions
 function hexToRgb(hex) {
   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result ? {
@@ -218,7 +409,6 @@ function hexToRgb(hex) {
     b: parseInt(result[3], 16)
   } : null;
 }
-
 function checkColClose(color1, color2) {
     const threshold = rThresholdINP.value;
     const rDiff = Math.abs(color1[0] - color2[0]);
@@ -227,9 +417,62 @@ function checkColClose(color1, color2) {
 
     return (rDiff < threshold) && (gDiff < threshold) && (bDiff < threshold);
 }
+function getCanvasPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width  / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top)  * scaleY,
+    };
+}
+function onMouseDown(e) {
+    isDragging = true;
+    const pos = getCanvasPos(e);
+    dragStartX = pos.x - offsetX;
+    dragStartY = pos.y - offsetY;
+}
+function onMouseMove(e) {
+    if (!isDragging) return;
+    const pos = getCanvasPos(e);
+    offsetX = pos.x - dragStartX;
+    offsetY = pos.y - dragStartY;
 
-function addPadding(img) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(image, offsetX, offsetY);
+}
+function onMouseUp() {
+    isDragging = false;
+}
+function onMouseLeave() {
+    if (isDragging) {
+        isDragging = false;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(image, offsetX, offsetY);
+    }
+}
+function onMouseMoveRotate(e) {
+    if (!isDragging) return;
+    const pos = getCanvasPos(e);
+    offsetX = pos.x - dragStartX;
+
+    const angleInRadians = (Math.PI*2)*offsetX/360;
+
+    clearCanvas();
+    var x = canvas.width / 2;
+    var y = canvas.height / 2;
+    var width = image.width;
+    var height = image.height;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angleInRadians);
+    ctx.drawImage(image, -width / 2, -height / 2, width, height);
+    ctx.restore();
+}
+// Modes Functions
+function addPadding(img) {
+    clearCanvas();
 
     let pX = parseInt(pWidthINP.value);
     let pY = parseInt(pHeightINP.value);
@@ -240,8 +483,10 @@ function addPadding(img) {
     ctx.drawImage(img, 0, 0);
     const oldData = ctx.getImageData(0, 0, prevW, prevH).data;
 
-    canvas.width = prevW + (pX * 2);
-    canvas.height = prevH + (pY * 2);
+    if (canvasSizing === "automatic") {
+        canvas.width = prevW + (pX * 2);
+        canvas.height = prevH + (pY * 2);
+    }
     
     const newImgData = ctx.createImageData(canvas.width, canvas.height);
     const newData = newImgData.data;
@@ -266,12 +511,13 @@ function addPadding(img) {
     }
     ctx.putImageData(newImgData, 0, 0);
 }
-
 function changeImageColor(img) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+    if (canvasSizing === "automatic") {
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+    }
 
     let rgb = hexToRgb(fColorINP.value)
     const colorCodes = [rgb.r/255, rgb.g/255, rgb.b/255]
@@ -293,12 +539,13 @@ function changeImageColor(img) {
 
     ctx.putImageData(imageData, 0, 0);
 }
-
 function replaceImageColor(img) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+    if (canvasSizing === "automatic") {
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+    }
 
     let rgb = hexToRgb(rColor2INP.value)
     const colorCodes = [rgb.r/255, rgb.g/255, rgb.b/255]
@@ -323,11 +570,9 @@ function replaceImageColor(img) {
 
     ctx.putImageData(imageData, 0, 0);
 }
-
 function mergeImages(img) {
     ctx.drawImage(img, Math.round(canvas.width/2 - img.naturalWidth/2), Math.round(canvas.height/2 - img.naturalHeight/2)); 
 }
-
 function changeImageOpacity(img) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -336,8 +581,10 @@ function changeImageOpacity(img) {
     const prevW = img.naturalWidth;
     const prevH = img.naturalHeight;
 
-    canvas.width = prevW;
-    canvas.height = prevH;
+    if (canvasSizing === "automatic") {
+        canvas.width = prevW;
+        canvas.height = prevH;
+    }
 
     ctx.drawImage(img, 0, 0);
     const imageData = ctx.getImageData(0, 0, prevW, prevH);
@@ -356,15 +603,16 @@ function changeImageOpacity(img) {
 
     ctx.putImageData(imageData, 0, 0);
 }
-
 function flipImage(img) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const prevW = img.naturalWidth;
     const prevH = img.naturalHeight;
 
-    canvas.width = prevW;
-    canvas.height = prevH;
+    if (canvasSizing === "automatic") {
+        canvas.width = prevW;
+        canvas.height = prevH;
+    }
 
     ctx.drawImage(img, 0, 0);
     const imageData = ctx.getImageData(0, 0, prevW, prevH);
@@ -395,15 +643,16 @@ function flipImage(img) {
 
     ctx.putImageData(flippedData, 0, 0);
 }
-
 function roundImageCorners(img) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const prevW = img.naturalWidth;
     const prevH = img.naturalHeight;
 
-    canvas.width = prevW;
-    canvas.height = prevH;
+    if (canvasSizing === "automatic") {
+        canvas.width = prevW;
+        canvas.height = prevH;
+    }
 
     ctx.drawImage(img, 0, 0);
     const imageData = ctx.getImageData(0, 0, prevW, prevH);
@@ -445,15 +694,16 @@ function roundImageCorners(img) {
     }
     ctx.putImageData(newImgData, 0, 0);
 }
-
 function blurImage(img) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const prevW = img.naturalWidth;
     const prevH = img.naturalHeight;
 
-    canvas.width = prevW;
-    canvas.height = prevH;
+    if (canvasSizing === "automatic") {
+        canvas.width = prevW;
+        canvas.height = prevH;
+    }
 
     ctx.drawImage(img, 0, 0);
     const imageData = ctx.getImageData(0, 0, prevW, prevH);
@@ -498,18 +748,19 @@ function blurImage(img) {
     }
     ctx.putImageData(blurredData, 0, 0);
 }
-
 function changeImageRatio(img) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const prevW = img.naturalWidth;
     const prevH = img.naturalHeight;
 
-    canvas.width = prevW;
-    canvas.height = prevH;
+    if (canvasSizing === "automatic") {
+        canvas.width = prevW;
+        canvas.height = prevH;
+    }
 
     ctx.drawImage(img, 0, 0)
-    const imageData = ctx.getImageData(0, 0, prevW, prevH)
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
     const data = imageData.data
 
     const ratioParts = rPresetsINP.value.split(":");
@@ -519,25 +770,25 @@ function changeImageRatio(img) {
 
     let ratioType = rTypeINP.value;
 
-    let cropW = prevW;
-    let cropH = prevW / targetRatio;
+    let cropW = canvas.width;
+    let cropH = canvas.width / targetRatio;
 
-    if (cropH > prevH) {
-        cropH = prevH;
-        cropW = prevH * targetRatio;
+    if (cropH > canvas.height) {
+        cropH = canvas.height;
+        cropW = canvas.height * targetRatio;
     }
 
-    let cropX = (prevW - cropW) / 2;
-    let cropY = (prevH - cropH) / 2;
+    let cropX = (canvas.width - cropW) / 2;
+    let cropY = (canvas.height - cropH) / 2;
 
     if (ratioType === "crop") {
         canvas.width = cropW;
         canvas.height = cropH;
 
         ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
-    } else if (ratioType == "fill") {
-        const newW = prevW + cropX*2;
-        const newH = prevH + cropY*2;
+    } else if (ratioType === "fill") {
+        const newW = canvas.width + cropX*2;
+        const newH = canvas.height + cropY*2;
 
         canvas.width = newW;
         canvas.height = newH;
@@ -561,14 +812,27 @@ function changeImageRatio(img) {
                     newData[index] = 0;
                     newData[index+1] = 0;
                     newData[index+2] = 0;
-                    newData[index+3] = 0;
+                    newData[index+3] = 255;
                 }
             }
         }
         ctx.putImageData(newImageData, 0, 0);
+        
+    } else if (ratioType === "distort") {
+        const newW = Math.round(canvas.height * targetRatio);
+        const newH = canvas.height;
+
+        const tempCanvas = document.createElement("canvas");
+        const tempCtx = tempCanvas.getContext("2d");
+        tempCanvas.width = prevW;
+        tempCanvas.height = prevH;
+        tempCtx.drawImage(img, 0, 0);
+
+        canvas.width = newW;
+        canvas.height = newH;
+        ctx.drawImage(tempCanvas, 0, 0, prevW, prevH, 0, 0, newW, newH);
     }
 }
-
 function editBackground(img) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -578,8 +842,10 @@ function editBackground(img) {
     const prevW = img.naturalWidth;
     const prevH = img.naturalHeight;
     
-    canvas.width = prevW;
-    canvas.height = prevH;
+    if (canvasSizing === "automatic") {
+        canvas.width = prevW;
+        canvas.height = prevH;
+    }
 
     ctx.drawImage(img, 0, 0);
     const imageData = ctx.getImageData(0, 0, prevW, prevH);
@@ -656,64 +922,18 @@ function editBackground(img) {
     addLayer();
     ctx.putImageData(backgroundImageData, 0, 0);
 }
-
 function addText() {
     let text = tTextINP.value;
     let size = tSizeINP.value;
     let color = tColorINP.value;
-    let font = tFontINP.value;
 
-    ctx.font = size + "px " + font;
+    ctx.font = size + "px serif";
     ctx.fillStyle = color;
 
     const xPos = Math.round(canvas.width/2 - (size/4)*text.length + size/2);
     const yPos = Math.round(canvas.height/2 + size/2)
     ctx.fillText(text, xPos, yPos);
 }
-
-let isDragging = false;
-let dragStartX = 0, dragStartY = 0;
-let offsetX = 0, offsetY = 0;
-
-function getCanvasPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width  / rect.width;
-    const scaleY = canvas.height / rect.height;
-    return {
-        x: (e.clientX - rect.left) * scaleX,
-        y: (e.clientY - rect.top)  * scaleY,
-    };
-}
-
-function onMouseDown(e) {
-    isDragging = true;
-    const pos = getCanvasPos(e);
-    dragStartX = pos.x - offsetX;
-    dragStartY = pos.y - offsetY;
-}
-
-function onMouseMove(e) {
-    if (!isDragging) return;
-    const pos = getCanvasPos(e);
-    offsetX = pos.x - dragStartX;
-    offsetY = pos.y - dragStartY;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(image, offsetX, offsetY);
-}
-
-function onMouseUp() {
-    isDragging = false;
-}
-
-function onMouseLeave() {
-    if (isDragging) {
-        isDragging = false;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(image, offsetX, offsetY);
-    }
-}
-
 function transformTool(img) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -723,30 +943,46 @@ function transformTool(img) {
     const prevW = img.naturalWidth;
     const prevH = img.naturalHeight;
 
-    canvas.width = prevW;
-    canvas.height = prevH;
-
+    if (canvasSizing === "automatic") {
+        canvas.width = prevW;
+        canvas.height = prevH;
+    }
+    
     ctx.drawImage(img, 0, 0);
 
     let transformType = tTypeINP.value;
 
+    isDragging = false;
+    dragStartX = 0, dragStartY = 0;
+    offsetX = 0, offsetY = 0;
+
     if (transformType === "move") {
 
+        canvas.style.cursor = "pointer";
         canvas.addEventListener("mousedown", onMouseDown);
         canvas.addEventListener("mousemove", onMouseMove);
         canvas.addEventListener("mouseup", onMouseUp);
         canvas.addEventListener("mouseleave", onMouseLeave);
 
-    } else if (transformType === "none") {
+    } else if (transformType === "rotate") {
 
+        canvas.style.cursor = "pointer";
+        canvas.addEventListener("mousedown", onMouseDown);
+        canvas.addEventListener("mousemove", onMouseMoveRotate);
+        canvas.addEventListener("mouseup", onMouseUp);
+
+    } else {
+
+        canvas.style.cursor = "auto";
         canvas.removeEventListener("mousedown", onMouseDown);
         canvas.removeEventListener("mousemove", onMouseMove);
         canvas.removeEventListener("mouseup", onMouseUp);
         canvas.removeEventListener("mouseleave", onMouseLeave);
+        canvas.removeEventListener("mousemove", onMouseMoveRotate);
         
     }
 }
-
+// Main Function
 function processImage(img) {
     if (img.width === 0 || img.height === 0) { return; }
 
@@ -774,143 +1010,5 @@ function processImage(img) {
         addText();
     } else if (currentMode === "transform") {
         transformTool(img);
-    }
-}
-
-async function uploadImage(files) {
-    let imgNbr = 1;
-    if (currentMode === "merge") {
-        imgNbr = parseInt(mNbrINP.value);
-    }
-
-    let maxH = 0;
-    let maxW = 0;
-
-    for (let i=0; i<Math.min(imgNbr, files.length); i++) {
-        let file = files[i];
-
-        const tempImg = new Image();
-        tempImg.crossOrigin = "anonymous";
-        tempImg.src = URL.createObjectURL(file);
-
-        await new Promise((resolve) => {
-            tempImg.onload = function() {
-                if (tempImg.naturalHeight > maxH) { maxH = tempImg.naturalHeight; }
-                if (tempImg.naturalWidth > maxW) { maxW = tempImg.naturalWidth; }
-                
-                loadedImages.push(tempImg);
-                resolve();
-            };
-        });
-    }
-
-    canvas.width = maxW;
-    canvas.height = maxH;
-
-    canvas.style.width = Math.floor(canvasWidth * (maxW / maxH)) + "px";
-
-    for (let imageN of loadedImages) {
-        processImage(imageN);
-    }
-
-    if (loadedImages.length > 0) {
-        const lastImg = loadedImages[0];
-        const dimRatio = targetHeight / lastImg.naturalHeight;
-        
-        image.src = lastImg.src;
-        image.style.height = targetHeight + "px";
-        image.style.width = Math.floor(lastImg.naturalWidth * dimRatio) + "px";
-    }
-
-    if (loadedImages.length >= imgNbr) {
-        loadedImages = [];
-    }
-}
-
-let loadedImages = [];
-let imgINP = document.getElementById("img-input");
-imgINP.addEventListener("change", async function() {
-    const files = imgINP.files;
-    if (files.length === 0) {return;}
-
-    await uploadImage(files);
-})
-
-const dropZone = document.getElementById("input-zone");
-dropZone.addEventListener("drop", async function(event) {
-    event.preventDefault();
-    const files = event.dataTransfer.files;
-    if (files.length === 0) {return;}
-
-    await uploadImage(files);
-})
-
-window.addEventListener("drop", (e) => {
-  if ([...e.dataTransfer.items].some((item) => item.kind === "file")) {
-    e.preventDefault();
-  }
-});
-
-dropZone.addEventListener("dragover", (e) => {
-  const fileItems = [...e.dataTransfer.items].filter(
-    (item) => item.kind === "file",
-  );
-  if (fileItems.length > 0) {
-    e.preventDefault();
-    if (fileItems.some((item) => item.type.startsWith("image/"))) {
-      e.dataTransfer.dropEffect = "copy";
-    } else {
-      e.dataTransfer.dropEffect = "none";
-    }
-  }
-});
-
-window.addEventListener("dragover", (e) => {
-  const fileItems = [...e.dataTransfer.items].filter(
-    (item) => item.kind === "file",
-  );
-  if (fileItems.length > 0) {
-    e.preventDefault();
-    if (!dropZone.contains(e.target)) {
-      e.dataTransfer.dropEffect = "none";
-    }
-  }
-});
-
-document.addEventListener("keydown", function(event) {
-    if (event.key === "Enter") {
-        processImage(image);
-    } else if (event.key === "Tab") {
-        event.preventDefault();
-        reEdit();
-    } else if (event.key === "Escape") {
-        download();
-    } else if (event.key === "Sup") {
-        event.preventDefault();
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-});
-
-function reEdit() {
-    image.src = canvas.toDataURL("image/png");
-    image.onload = function() {
-        loadedImages.push(image);
-
-        const dimRatio = targetHeight / image.naturalHeight;
-    
-        const targetWidth = Math.floor(image.naturalWidth * dimRatio);
-
-        image.style.width = targetWidth + "px";
-        image.style.height = targetHeight + "px";
-
-        image.width = targetWidth;
-        image.height = targetHeight;
-
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
-
-        canvas.style.width = Math.floor(canvasWidth * (image.naturalWidth/image.naturalHeight)) + "px";
-
-        processImage(image);
     }
 }

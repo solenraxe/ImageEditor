@@ -32,6 +32,7 @@ body {
 
 #footer {
     height: 30%;
+    width: 80%;
 }
 
 #main {
@@ -63,7 +64,7 @@ body {
     border-radius: 15px;
     border: 2px solid var(--accent-color);
     width: 15%;
-    height: 600px;
+    min-height: 51%;
 }
 
 #layer-display {
@@ -136,8 +137,6 @@ body {
     border: 2px solid var(--accent-color);
     box-shadow: 0 4px 20px rgba(0,0,0,.15);
     border-radius: 15px;
-
-    cursor: pointer;
 
     transition: 0.2s ease;
 }
@@ -219,6 +218,13 @@ body {
     padding: 0;
     background: none;
     color: var(--text-color);
+    -moz-appearance: textfield;
+}
+
+.nbr-inp::-webkit-outer-spin-button,
+.nbr-inp::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .sel-inp {
@@ -283,7 +289,20 @@ option {
     width: 80%;
 }
 
+#bottom-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 80%;
+    font-weight: normal;
+}
+
 #download-as-zone {
     color: var(--text-color);
     font-weight: normal;
+}
+
+.canvas-size-input {
+    display: none;
 }
