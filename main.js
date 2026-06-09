@@ -1,9 +1,11 @@
 let renderZone = document.getElementById("render-zone")
 
 let canvas = document.getElementById("drawing-canvas");
+const canvasWidth = canvas.clientWidth
 const ctx = canvas.getContext("2d", {willReadFrequently: true});
 
 let image = document.getElementById("source-img");
+const targetHeight = image.clientHeight
 image.crossOrigin = "anonymous";
 image.src = "Beest.png";
 
@@ -57,12 +59,11 @@ function changeLayer(num) {
     let imageData = layers[currentLayer];
     canvas.width = imageData.width;
     canvas.height = imageData.height;
-    canvas.style.width = Math.floor(250 * (imageData.width/imageData.height)) + "px";
+    canvas.style.width = Math.floor(canvasWidth * (imageData.width/imageData.height)) + "px";
     ctx.putImageData(layers[currentLayer], 0, 0);
 
     image.src = canvas.toDataURL("image/png");
     image.onload = function() {
-        const targetHeight = 200;
         const dimRatio = targetHeight / image.naturalHeight;
     
         const targetWidth = Math.floor(image.naturalWidth * dimRatio);
@@ -76,7 +77,7 @@ function changeLayer(num) {
         canvas.width = image.naturalWidth;
         canvas.height = image.naturalHeight;
 
-        canvas.style.width = Math.floor(250 * (image.naturalWidth/image.naturalHeight)) + "px";
+        canvas.style.width = Math.floor(canvasWidth * (image.naturalWidth/image.naturalHeight)) + "px";
 
         ctx.drawImage(image, 0, 0)
     }
@@ -104,7 +105,6 @@ function mergeLayers() {
     ctx.drawImage(tempCanvas, 0, 0);
     image.src = canvas.toDataURL("image/png");
     image.onload = function() {
-        const targetHeight = 200;
         const dimRatio = targetHeight / image.naturalHeight;
     
         const targetWidth = Math.floor(image.naturalWidth * dimRatio);
@@ -118,7 +118,7 @@ function mergeLayers() {
         canvas.width = image.naturalWidth;
         canvas.height = image.naturalHeight;
 
-        canvas.style.width = Math.floor(250 * (image.naturalWidth/image.naturalHeight)) + "px";
+        canvas.style.width = Math.floor(canvasWidth * (image.naturalWidth/image.naturalHeight)) + "px";
 
         ctx.drawImage(image, 0, 0)
     }
@@ -807,7 +807,7 @@ async function uploadImage(files) {
     canvas.width = maxW;
     canvas.height = maxH;
 
-    canvas.style.width = Math.floor(250 * (maxW / maxH)) + "px";
+    canvas.style.width = Math.floor(canvasWidth * (maxW / maxH)) + "px";
 
     for (let imageN of loadedImages) {
         processImage(imageN);
@@ -815,7 +815,6 @@ async function uploadImage(files) {
 
     if (loadedImages.length > 0) {
         const lastImg = loadedImages[0];
-        const targetHeight = 200;
         const dimRatio = targetHeight / lastImg.naturalHeight;
         
         image.src = lastImg.src;
@@ -897,7 +896,6 @@ function reEdit() {
     image.onload = function() {
         loadedImages.push(image);
 
-        const targetHeight = 200;
         const dimRatio = targetHeight / image.naturalHeight;
     
         const targetWidth = Math.floor(image.naturalWidth * dimRatio);
@@ -911,7 +909,7 @@ function reEdit() {
         canvas.width = image.naturalWidth;
         canvas.height = image.naturalHeight;
 
-        canvas.style.width = Math.floor(250 * (image.naturalWidth/image.naturalHeight)) + "px";
+        canvas.style.width = Math.floor(canvasWidth * (image.naturalWidth/image.naturalHeight)) + "px";
 
         processImage(image);
     }
