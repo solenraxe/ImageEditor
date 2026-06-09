@@ -283,7 +283,20 @@ option {
     width: 80%;
 }
 
+#bottom-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 80%;
+    font-weight: normal;
+}
+
 #download-as-zone {
     color: var(--text-color);
     font-weight: normal;
+}
+
+.canvas-size-input {
+    display: none;
 }

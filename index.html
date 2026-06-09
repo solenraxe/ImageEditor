@@ -163,13 +163,6 @@
                         <input type="number" id="t-size-inp" min="0" value="16" class="nbr-inp">
                     </div>
 
-                    <div class="input-group" id="t-font">
-                        <label for="t-font-inp">Font:</label>
-                        <select id="t-font-inp" class="sel-inp">
-                            <option value="serfi">Serif</option>
-                        </select>
-                    </div>
-
                     <div class="input-group" id="t-color">
                         <label for="t-color-inp">Font Color:</label>
                         <input type="color" value="#000000" class="clr-inp" id="t-color-inp">
@@ -212,6 +205,27 @@
                         </div>
 
                         <canvas id="drawing-canvas" width="250" height="250"></canvas>
+                    </div>
+                </div>
+
+                <div id="bottom-bar" class="pres">
+                    <button class="button" onclick="clearCanvas()">Clear Canvas</button>
+                    <div>
+                        <label for="canvas-sizing-inp">Sizing Mode:</label>
+                        <select id="canvas-sizing-inp" class="sel-inp">
+                            <option value="automatic">Automatic</option>
+                            <option value="manual">Manual</option>
+                        </select>
+                    </div>
+
+                    <div class="canvas-size-input">
+                        <label for="canvas-width-inp">Canvas Width:</label>
+                        <input type="numer" class="nbr-inp" id="canvas-width-inp" min="10" value="250">
+                    </div>
+
+                    <div class="canvas-size-input">
+                        <label for="canvas-height-inp">Canvas Height:</label>
+                        <input type="numer" class="nbr-inp" id="canvas-height-inp" min="10" value="250">
                     </div>
                 </div>
             </div>

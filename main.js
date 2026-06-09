@@ -4,6 +4,8 @@ let canvas = document.getElementById("drawing-canvas");
 const canvasWidth = canvas.clientWidth
 const ctx = canvas.getContext("2d", {willReadFrequently: true});
 
+let canvasSizing = "automatic";
+
 let image = document.getElementById("source-img");
 const targetHeight = image.clientHeight
 image.crossOrigin = "anonymous";
@@ -57,8 +59,10 @@ function changeLayer(num) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     let imageData = layers[currentLayer];
-    canvas.width = imageData.width;
-    canvas.height = imageData.height;
+    if (canvasSizing === "automatic") {
+        canvas.width = imageData.width;
+        canvas.height = imageData.height;
+    }
     canvas.style.width = Math.floor(canvasWidth * (imageData.width/imageData.height)) + "px";
     ctx.putImageData(layers[currentLayer], 0, 0);
 
@@ -74,10 +78,12 @@ function changeLayer(num) {
         image.width = targetWidth;
         image.height = targetHeight;
 
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
+        if (canvasSizing === "automatic") {
+            canvas.width = image.naturalWidth;
+            canvas.height = image.naturalHeight;
+        }
 
-        canvas.style.width = Math.floor(canvasWidth * (image.naturalWidth/image.naturalHeight)) + "px";
+        canvas.style.width = Math.floor(canvasWidth * (canvas.width/canvas.height)) + "px";
 
         ctx.drawImage(image, 0, 0)
     }
@@ -115,10 +121,12 @@ function mergeLayers() {
         image.width = targetWidth;
         image.height = targetHeight;
 
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
+        if (canvasSizing === "automatic") {
+            canvas.width = image.naturalWidth;
+            canvas.height = image.naturalHeight;
+        }
 
-        canvas.style.width = Math.floor(canvasWidth * (image.naturalWidth/image.naturalHeight)) + "px";
+        canvas.style.width = Math.floor(canvasWidth * (canvas.width/canvas.height)) + "px";
 
         ctx.drawImage(image, 0, 0)
     }
@@ -142,7 +150,7 @@ let modesElements = {
     "blur": [document.getElementById("b-intensity")],
     "ratio": [document.getElementById("r-type"), document.getElementById("r-presets")],
     "background": [document.getElementById("b-type"), document.getElementById("b-threshold")],
-    "text": [document.getElementById("t-text"), document.getElementById("t-size"), document.getElementById("t-font"), document.getElementById("t-color")],
+    "text": [document.getElementById("t-text"), document.getElementById("t-size"), document.getElementById("t-color")],
     "transform": [document.getElementById("t-type")],
 }
 
@@ -190,7 +198,6 @@ let bThresholdINP = document.getElementById("b-threshold-inp");
 
 let tTextINP = document.getElementById("t-text-inp");
 let tSizeINP = document.getElementById("t-size-inp");
-let tFontINP = document.getElementById("t-font-inp");
 let tColorINP = document.getElementById("t-color-inp");
 
 let tTypeINP = document.getElementById("t-type-inp");
@@ -240,8 +247,10 @@ function addPadding(img) {
     ctx.drawImage(img, 0, 0);
     const oldData = ctx.getImageData(0, 0, prevW, prevH).data;
 
-    canvas.width = prevW + (pX * 2);
-    canvas.height = prevH + (pY * 2);
+    if (canvasSizing === "automatic") {
+        canvas.width = prevW + (pX * 2);
+        canvas.height = prevH + (pY * 2);
+    }
     
     const newImgData = ctx.createImageData(canvas.width, canvas.height);
     const newData = newImgData.data;
@@ -270,8 +279,10 @@ function addPadding(img) {
 function changeImageColor(img) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+    if (canvasSizing === "automatic") {
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+    }
 
     let rgb = hexToRgb(fColorINP.value)
     const colorCodes = [rgb.r/255, rgb.g/255, rgb.b/255]
@@ -297,8 +308,10 @@ function changeImageColor(img) {
 function replaceImageColor(img) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+    if (canvasSizing === "automatic") {
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+    }
 
     let rgb = hexToRgb(rColor2INP.value)
     const colorCodes = [rgb.r/255, rgb.g/255, rgb.b/255]
@@ -336,8 +349,10 @@ function changeImageOpacity(img) {
     const prevW = img.naturalWidth;
     const prevH = img.naturalHeight;
 
-    canvas.width = prevW;
-    canvas.height = prevH;
+    if (canvasSizing === "automatic") {
+        canvas.width = prevW;
+        canvas.height = prevH;
+    }
 
     ctx.drawImage(img, 0, 0);
     const imageData = ctx.getImageData(0, 0, prevW, prevH);
@@ -363,8 +378,10 @@ function flipImage(img) {
     const prevW = img.naturalWidth;
     const prevH = img.naturalHeight;
 
-    canvas.width = prevW;
-    canvas.height = prevH;
+    if (canvasSizing === "automatic") {
+        canvas.width = prevW;
+        canvas.height = prevH;
+    }
 
     ctx.drawImage(img, 0, 0);
     const imageData = ctx.getImageData(0, 0, prevW, prevH);
@@ -402,8 +419,10 @@ function roundImageCorners(img) {
     const prevW = img.naturalWidth;
     const prevH = img.naturalHeight;
 
-    canvas.width = prevW;
-    canvas.height = prevH;
+    if (canvasSizing === "automatic") {
+        canvas.width = prevW;
+        canvas.height = prevH;
+    }
 
     ctx.drawImage(img, 0, 0);
     const imageData = ctx.getImageData(0, 0, prevW, prevH);
@@ -452,8 +471,10 @@ function blurImage(img) {
     const prevW = img.naturalWidth;
     const prevH = img.naturalHeight;
 
-    canvas.width = prevW;
-    canvas.height = prevH;
+    if (canvasSizing === "automatic") {
+        canvas.width = prevW;
+        canvas.height = prevH;
+    }
 
     ctx.drawImage(img, 0, 0);
     const imageData = ctx.getImageData(0, 0, prevW, prevH);
@@ -505,11 +526,13 @@ function changeImageRatio(img) {
     const prevW = img.naturalWidth;
     const prevH = img.naturalHeight;
 
-    canvas.width = prevW;
-    canvas.height = prevH;
+    if (canvasSizing === "automatic") {
+        canvas.width = prevW;
+        canvas.height = prevH;
+    }
 
     ctx.drawImage(img, 0, 0)
-    const imageData = ctx.getImageData(0, 0, prevW, prevH)
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
     const data = imageData.data
 
     const ratioParts = rPresetsINP.value.split(":");
@@ -519,16 +542,16 @@ function changeImageRatio(img) {
 
     let ratioType = rTypeINP.value;
 
-    let cropW = prevW;
-    let cropH = prevW / targetRatio;
+    let cropW = canvas.width;
+    let cropH = canvas.width / targetRatio;
 
-    if (cropH > prevH) {
-        cropH = prevH;
-        cropW = prevH * targetRatio;
+    if (cropH > canvas.height) {
+        cropH = canvas.height;
+        cropW = canvas.height * targetRatio;
     }
 
-    let cropX = (prevW - cropW) / 2;
-    let cropY = (prevH - cropH) / 2;
+    let cropX = (canvas.width - cropW) / 2;
+    let cropY = (canvas.height - cropH) / 2;
 
     if (ratioType === "crop") {
         canvas.width = cropW;
@@ -536,8 +559,8 @@ function changeImageRatio(img) {
 
         ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
     } else if (ratioType == "fill") {
-        const newW = prevW + cropX*2;
-        const newH = prevH + cropY*2;
+        const newW = canvas.width + cropX*2;
+        const newH = canvas.height + cropY*2;
 
         canvas.width = newW;
         canvas.height = newH;
@@ -578,8 +601,10 @@ function editBackground(img) {
     const prevW = img.naturalWidth;
     const prevH = img.naturalHeight;
     
-    canvas.width = prevW;
-    canvas.height = prevH;
+    if (canvasSizing === "automatic") {
+        canvas.width = prevW;
+        canvas.height = prevH;
+    }
 
     ctx.drawImage(img, 0, 0);
     const imageData = ctx.getImageData(0, 0, prevW, prevH);
@@ -661,9 +686,8 @@ function addText() {
     let text = tTextINP.value;
     let size = tSizeINP.value;
     let color = tColorINP.value;
-    let font = tFontINP.value;
 
-    ctx.font = size + "px " + font;
+    ctx.font = size + "px serif";
     ctx.fillStyle = color;
 
     const xPos = Math.round(canvas.width/2 - (size/4)*text.length + size/2);
@@ -723,9 +747,11 @@ function transformTool(img) {
     const prevW = img.naturalWidth;
     const prevH = img.naturalHeight;
 
-    canvas.width = prevW;
-    canvas.height = prevH;
-
+    if (canvasSizing === "automatic") {
+        canvas.width = prevW;
+        canvas.height = prevH;
+    }
+    
     ctx.drawImage(img, 0, 0);
 
     let transformType = tTypeINP.value;
@@ -804,8 +830,10 @@ async function uploadImage(files) {
         });
     }
 
-    canvas.width = maxW;
-    canvas.height = maxH;
+    if (canvasSizing === "automatic") {
+        canvas.width = maxW;
+        canvas.height = maxH;
+    }
 
     canvas.style.width = Math.floor(canvasWidth * (maxW / maxH)) + "px";
 
@@ -877,6 +905,9 @@ window.addEventListener("dragover", (e) => {
   }
 });
 
+function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
 document.addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
         processImage(image);
@@ -885,9 +916,9 @@ document.addEventListener("keydown", function(event) {
         reEdit();
     } else if (event.key === "Escape") {
         download();
-    } else if (event.key === "Sup") {
+    } else if (event.key === "X") {
         event.preventDefault();
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        clearCanvas();
     }
 });
 
@@ -906,11 +937,46 @@ function reEdit() {
         image.width = targetWidth;
         image.height = targetHeight;
 
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
+        if (canvasSizing === "automatic") {
+            canvas.width = image.naturalWidth;
+            canvas.height = image.naturalHeight;
+        }
 
-        canvas.style.width = Math.floor(canvasWidth * (image.naturalWidth/image.naturalHeight)) + "px";
+        canvas.style.width = Math.floor(canvasWidth * (canvas.width/canvas.height)) + "px";
 
         processImage(image);
     }
 }
+
+let canvasSizingINP = document.getElementById("canvas-sizing-inp");
+let canvasWidthINP = document.getElementById("canvas-width-inp");
+let canvasHeightINP = document.getElementById("canvas-height-inp");
+
+canvasSizingINP.addEventListener("change", function() {
+    if (canvasSizingINP.value === "manual") {
+        for (let element of document.getElementsByClassName("canvas-size-input")) {
+            element.style.display = "block";
+        }
+        canvas.height = parseInt(canvasHeightINP.value);
+        canvas.width = parseInt(canvasWidthINP.value);
+    } else {
+        for (let element of document.getElementsByClassName("canvas-size-input")) {
+            element.style.display = "none";
+        }
+    }
+    canvasSizing = canvasSizingINP.value;
+})
+
+canvasHeightINP.addEventListener("change", function() {
+    if (canvasSizingINP.value === "manual") {
+        canvas.height = canvasHeightINP.value;
+    }
+    processImage(image);
+})
+
+canvasWidthINP.addEventListener("change", function() {
+    if (canvasSizingINP.value === "manual") {
+        canvas.width = canvasWidthINP.value;
+    }
+    processImage(image);
+})
