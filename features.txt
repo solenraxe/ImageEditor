@@ -16,12 +16,12 @@ Current :
 - Background Editor
     - Fill with solid Color
     - Make transparent
-
-To be added :
-- Drag Images where you want them
 - Layer System
     - Other Images
     - Split Image from Background
     - Text Layers
-- Transform Tool
 - Text Tool
+
+To be added :
+- Transform Tool
+- Canvas Sizing
