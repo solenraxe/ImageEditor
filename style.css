@@ -32,6 +32,7 @@ body {
 
 #footer {
     height: 30%;
+    width: 80%;
 }
 
 #main {
@@ -63,7 +64,7 @@ body {
     border-radius: 15px;
     border: 2px solid var(--accent-color);
     width: 15%;
-    height: 600px;
+    min-height: 51%;
 }
 
 #layer-display {
@@ -217,6 +218,13 @@ body {
     padding: 0;
     background: none;
     color: var(--text-color);
+    -moz-appearance: textfield;
+}
+
+.nbr-inp::-webkit-outer-spin-button,
+.nbr-inp::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .sel-inp {
