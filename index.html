@@ -186,7 +186,7 @@
             <div id="main-zone">
                 <div id="top-bar" class="pres">
                     <label class="button" for="img-input" id="actual-input">Upload Image...</label>
-                    <input type="file" id="img-input" accept=".png, .jpg, .jped" multiple>
+                    <input type="file" id="img-input" accept=".png, .jpg, .jpeg" multiple>
                     <button class="button" id="re-edit" onclick="reEdit()">Edit created image</button>
                     <button class="button" id="download" onclick="download()">Download...</button>
                     <div id="download-as-zone">
@@ -194,7 +194,6 @@
                         <select id="download-as" class="sel-inp">
                             <option value="png">PNG</option>
                             <option value="jpg">JPEG</option>
-                            <option value="ico">ICON</option>
                         </select>
                     </div>
                 </div>
@@ -202,7 +201,10 @@
                 <div id="img-zone" class="pres">
                     <div id="render-zone">
                         <div id="input-zone">
-                            <img id="source-img" src="Beest.png" alt="Drag & Drop or Browse for an image.">
+                            <label for="img-input-2" id="actual-img-input-2">
+                                <img id="source-img" src="Beest.png" alt="Drag & Drop or Browse for an image">
+                            </label>
+                            <input type="file" accept=".png, .jpg, .jpeg" multiple id="img-input-2" hidden>
                         </div>
 
                         <canvas id="drawing-canvas" width="250" height="250"></canvas>
