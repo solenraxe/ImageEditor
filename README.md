@@ -14,12 +14,15 @@ That's when I had the idea to make this Image Editor, since it didn't need any b
 
 DESCRIPTION:
 Image Editor is a website like many others, you first upload the image you want to modify, either by browsing through your files or dragging one into the designated area (that took me some time to make lol).
-Upload button : <img width="500" height="80" alt="randomScreenshot" src="https://github.com/user-attachments/assets/42322cb6-0211-4aa1-ab68-856ea525579d" />
+
+Upload button : 
+<img width="500" height="80" alt="randomScreenshot" src="https://github.com/user-attachments/assets/42322cb6-0211-4aa1-ab68-856ea525579d" />
 
 You can then recolor it, change specific colors, change your its opacity, add padding to it, merge multiple images into one, add text and much, much more.
 At first I only wanted to add a few specific features, but then I got a little carried away...
 
-You can do things like that : <img width="256" height="256" alt="image" src="https://github.com/user-attachments/assets/a8d33bb8-95ea-4c4b-a3ee-817052826d46" />
+You can do things like that :
+<img width="256" height="256" alt="image" src="https://github.com/user-attachments/assets/a8d33bb8-95ea-4c4b-a3ee-817052826d46" />
 (that's my pfp but modified) and I think it's pretty useful.
 
 Since the V2, you can now edit an image multiple times in a row by clicking the button "Edit created image", this wasn't possible in the V1 as it used one web page per mode.
