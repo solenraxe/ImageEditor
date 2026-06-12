@@ -5,6 +5,7 @@ let image = document.getElementById("source-img");
 let downloadAs = document.getElementById("download-as");
 let layerCont = document.getElementById("layer-display");
 let imgINP = document.getElementById("img-input");
+let imgINP2 = document.getElementById("img-input-2");
 let dropZone = document.getElementById("input-zone");
 
 
@@ -114,6 +115,12 @@ bTypeINP.addEventListener("change", function() {
 })
 imgINP.addEventListener("change", async function() {
     const files = imgINP.files;
+    if (files.length === 0) {return;}
+
+    await uploadImage(files);
+})
+imgINP2.addEventListener("change", async function() {
+    const files = imgINP2.files;
     if (files.length === 0) {return;}
 
     await uploadImage(files);
